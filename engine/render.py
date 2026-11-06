@@ -62,10 +62,31 @@ EMO_TAG = {"angry": "[angry]", "smug": "[sarcastically]", "shocked": "[shocked]"
 _WHISPER = None
 
 
+_ONES = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen " \
+        "seventeen eighteen nineteen".split()
+_TENS = "_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()
+
+
+def _num_words(n):
+    if n < 20:
+        return _ONES[n]
+    if n < 100:
+        return _TENS[n // 10] + ("" if n % 10 == 0 else " " + _ONES[n % 10])
+    if n < 1000:
+        return _ONES[n // 100] + " hundred" + ("" if n % 100 == 0 else " " + _num_words(n % 100))
+    if n < 1000000:
+        return _num_words(n // 1000) + " thousand" + ("" if n % 1000 == 0 else " " + _num_words(n % 1000))
+    return str(n)
+
+
 def _norm_words(t):
     import re
     t = re.sub(r"\[[^\]]*\]", " ", t.lower())
-    return re.findall(r"[a-z0-9']+", t)
+    t = re.sub(r"(?<=\d),(?=\d)", "", t)
+    t = re.sub(r"\d+", lambda m: " " + _num_words(int(m.group())) + " ", t)
+    t = t.replace("-", " ")
+    words = re.findall(r"[a-z']+", t)
+    return [w for w in words if w not in ("ha", "haha", "hahaha", "and", "a", "uh", "um")]
 
 
 def _check(a, text):
@@ -134,14 +155,14 @@ def voice_line(c, text, emotion):
         return tts(text, c["voice"], c.get("rate", "+0%"), c.get("pitch", "+0Hz"))
     tagged = text if text.lstrip().startswith("[") else (EMO_TAG.get(emotion, "") + " " + text).strip()
     best = None
-    for seed in (1, 2, 3):
+    for seed in (1, 2):
         a = trim_norm(eleven(tagged, c["el_voice"], c.get("el_model", "eleven_v3"), c.get("stability", 0.5), seed))
         score, heard = _check(a, text)
         if best is None or score > best[0]:
             best = (score, a, heard)
         has_num = any(w in _norm_words(text) for w in ("one", "two", "three", "four", "five", "six", "seven", "eight",
                                                          "nine", "ten", "forty", "ninety", "hundred", "thousand"))
-        if score >= (0.5 if has_num else 0.85):
+        if score >= (0.5 if has_num else 0.75) or os.environ.get("EL_OFFLINE"):
             break
         print(f"  Prüfung {score:.2f} (seed {seed}): '{heard.strip()}' statt '{text}'")
     return best[1]

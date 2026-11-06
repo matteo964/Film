@@ -784,3 +784,101 @@ def podium(cr):
     cr.arc(333, 1140, 12, 0, 2 * math.pi)
     cr.set_source_rgb(*BLACK)
     cr.fill()
+
+
+# ---------------------------------------------------------------- Klassenzimmer
+def _chalk(cr, s, x, y, size=40, col=(0.96, 0.96, 0.92)):
+    cr.select_font_face("DejaVu Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+    cr.set_font_size(size)
+    cr.new_path()
+    cr.move_to(x, y)
+    cr.set_source_rgb(*col)
+    cr.show_text(s)
+    cr.new_path()
+
+
+def classroom(board="final"):
+    def make():
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(surf)
+        cr.set_source_rgb(*rgb("#F3E9C6"))
+        cr.paint()
+        cr.rectangle(0, 1250, W, 310)
+        cr.set_source_rgb(*rgb("#9FC7A0"))
+        cr.fill()
+        cr.rectangle(0, 1240, W, 14)
+        cr.set_source_rgb(*rgb("#7DAA80"))
+        cr.fill()
+        cr.rectangle(0, 1560, W, H - 1560)
+        cr.set_source_rgb(*rgb("#C9A27A"))
+        cr.fill()
+        cr.set_source_rgba(0, 0, 0, 0.10)
+        cr.set_line_width(3)
+        for x in range(-300, W + 300, 130):
+            cr.move_to(x, 1560)
+            cr.line_to(x + (x - 540) * 0.6, H)
+        cr.stroke()
+        # Uhr
+        cr.arc(980, 520, 46, 0, 2 * math.pi)
+        fill_stroke(cr, (1, 1, 1), 6)
+        cr.move_to(980, 520)
+        cr.line_to(980, 490)
+        cr.move_to(980, 520)
+        cr.line_to(1000, 532)
+        stroke_black(cr, 5)
+        # Tafel
+        bx, by, bw, bh = 70, 440, 860, 480
+        rrect(cr, bx - 20, by - 20, bw + 40, bh + 40, 10)
+        fill_stroke(cr, rgb("#9A6A3F"), 6)
+        cr.rectangle(bx, by, bw, bh)
+        fill_stroke(cr, rgb("#2F5D46"), 5)
+        cr.set_source_rgba(1, 1, 1, 0.05)
+        for k in range(5):
+            cr.arc(bx + 150 + k * 170, by + 200 + (k % 2) * 90, 90, 0, 2 * math.pi)
+            cr.fill()
+        cr.rectangle(bx, by + bh + 20, bw, 18)
+        fill_stroke(cr, rgb("#8A5D36"), 4)
+        cr.rectangle(bx + 600, by + bh + 8, 70, 14)
+        fill_stroke(cr, rgb("#EEEEEE"), 3)
+        if board == "final":
+            _chalk(cr, "CALCULUS FINAL", bx + 40, by + 80, 52)
+            _chalk(cr, "Class average: 61%", bx + 40, by + 160, 40)
+            _chalk(cr, "Highest score: ???", bx + 40, by + 225, 40)
+            _chalk(cr, "No phones. No excuses.", bx + 40, by + 300, 36, rgb("#F7D774"))
+        elif board in ("problem", "solved"):
+            _chalk(cr, "BONUS PROBLEM", bx + 40, by + 70, 46, rgb("#F7D774"))
+            _chalk(cr, "∫ (2t+3) dt  from 1 to x  =  66", bx + 40, by + 140, 40)
+            _chalk(cr, "Solve for x  (x > 0)", bx + 40, by + 195, 38)
+            if board == "solved":
+                _chalk(cr, "x² + 3x − 4 = 66   →   (x + 10)(x − 7) = 0", bx + 40, by + 265, 36)
+                _chalk(cr, "x = 7  ✓", bx + 40, by + 330, 46, rgb("#9BF29B"))
+                _chalk(cr, "Answer key: 9 ?  → line 3 divides by 2 twice!", bx + 40, by + 405, 32, rgb("#FF8A8A"))
+                cr.arc(bx + 110, by + 316, 70, 0, 2 * math.pi)
+                cr.set_source_rgb(*rgb("#FF8A8A"))
+                cr.set_line_width(5)
+                cr.stroke()
+        # Lehrerpult rechts unten
+        rrect(cr, 760, 1300, 300, 30, 6)
+        fill_stroke(cr, rgb("#A26B3E"), 5)
+        cr.rectangle(780, 1330, 260, 230)
+        fill_stroke(cr, rgb("#8B5A33"), 5)
+        cr.arc(840, 1270, 26, 0, 2 * math.pi)
+        fill_stroke(cr, rgb("#D9442B"), 4)
+        cr.move_to(840, 1244)
+        cr.line_to(846, 1230)
+        stroke_black(cr, 4)
+        for k in range(3):
+            cr.rectangle(900, 1290 - k * 16, 120, 14)
+            fill_stroke(cr, rgb(("#3D8BFF", "#F2C230", "#5AC05A")[k]), 3)
+        surf.flush()
+        return surf
+    return make
+
+
+def student_desk(cr, x=150):
+    rrect(cr, x - 120, 1330, 240, 24, 6)
+    fill_stroke(cr, rgb("#C99B6D"), 5)
+    for dx in (-100, 100):
+        cr.move_to(x + dx, 1354)
+        cr.line_to(x + dx, 1560)
+        stroke_black(cr, 8)

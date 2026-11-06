@@ -35,6 +35,9 @@ POSES = {
     "lap_explain": {"L": (60, -400), "R": (160, -600)},
     "mug":     {"L": (-50, -392, "out"), "R": (110, -560)},
     "type":    {"L": (60, -440), "R": (125, -445)},
+    "write":   {"L": (-50, -392, "out"), "R": (175, -820)},
+    "write2":  {"L": (-50, -392, "out"), "R": (205, -790)},
+    "paper":   {"L": (-50, -392, "out"), "R": (150, -600)},
     "type2":   {"L": (75, -446), "R": (110, -440)},
     "tablet":  {"L": (110, -560), "R": (150, -570)},
 }
@@ -98,7 +101,7 @@ class Look:
     """Aussehen einer Figur."""
 
     def __init__(self, shirt=(0.15, 0.80, 0.91), tie=False, bun=False, cap=False,
-                 belt=False, lashes=False, ponytail=False, moustache=False, scarf=False, collar=False,
+                 belt=False, lashes=False, ponytail=False, glasses=False, moustache=False, scarf=False, collar=False,
                  hair_color=(0.35, 0.22, 0.14)):
         self.shirt = shirt
         self.tie = tie
@@ -106,6 +109,7 @@ class Look:
         self.cap = cap
         self.belt = belt
         self.ponytail = ponytail
+        self.glasses = glasses
         self.lashes = lashes
         self.moustache = moustache
         self.scarf = scarf
@@ -386,6 +390,17 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.line_to(cx + 16, by + tilt * 14)
         stroke_black(cr, 6)
 
+    if look.glasses:
+        for dx in (-25, 25):
+            rrect(cr, ecx + dx - 30, ey - 36, 60, 70, 14)
+            stroke_black(cr, 5)
+        cr.move_to(ecx - 5, ey - 6)
+        cr.line_to(ecx + 5, ey - 6)
+        stroke_black(cr, 5)
+        cr.move_to(ecx - 55, ey - 10)
+        cr.line_to(ecx - 90, ey - 18)
+        stroke_black(cr, 5)
+
     if look.moustache:
         mx, my = ecx + 2, head_cy + 30
         cr.move_to(mx - 34, my + 6)
@@ -495,6 +510,38 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.set_source_rgb(0.55, 0.85, 0.95)
         cr.fill()
         cr.restore()
+        cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
+        cr.set_source_rgb(*BLACK)
+        cr.fill()
+    elif prop == "paper":
+        cr.save()
+        cr.translate(hr[0] + 10, hr[1] - 20)
+        cr.rotate(0.12)
+        cr.rectangle(-45, -120, 90, 120)
+        cr.set_source_rgb(1, 1, 1)
+        cr.fill_preserve()
+        stroke_black(cr, 4)
+        for k in range(4):
+            cr.move_to(-32, -95 + k * 18)
+            cr.line_to(32, -95 + k * 18)
+        cr.set_source_rgb(0.6, 0.6, 0.65)
+        cr.set_line_width(3)
+        cr.stroke()
+        cr.select_font_face("TikTok Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        cr.set_font_size(30)
+        cr.set_source_rgb(0.85, 0.1, 0.1)
+        cr.move_to(-36, -12)
+        cr.show_text("100%")
+        cr.restore()
+        cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
+        cr.set_source_rgb(*BLACK)
+        cr.fill()
+    elif prop == "chalk":
+        cr.move_to(hr[0] + 4, hr[1] - 6)
+        cr.line_to(hr[0] + 22, hr[1] - 26)
+        cr.set_source_rgb(1, 1, 1)
+        cr.set_line_width(9)
+        cr.stroke()
         cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
         cr.set_source_rgb(*BLACK)
         cr.fill()
