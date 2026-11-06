@@ -55,6 +55,96 @@ def tts(text, voice, rate="+0%", pitch="+0Hz"):
     return a
 
 
+# ------------------------------------------------------------------ ElevenLabs
+EMO_TAG = {"angry": "[angry]", "smug": "[sarcastically]", "shocked": "[shocked]", "worried": "[nervously]",
+           "happy": "[cheerfully]", "annoyed": "[annoyed]", "sad": "[sadly]", "confused": "[confused]",
+           "calm": "[calmly]"}
+_WHISPER = None
+
+
+def _norm_words(t):
+    import re
+    t = re.sub(r"\[[^\]]*\]", " ", t.lower())
+    return re.findall(r"[a-z0-9']+", t)
+
+
+def _check(a, text):
+    """Spracherkennung: Ähnlichkeit 0..1 zwischen gesprochenem und Soll-Text."""
+    global _WHISPER
+    import difflib
+    from faster_whisper import WhisperModel
+    if _WHISPER is None:
+        _WHISPER = WhisperModel("small", device="cpu", compute_type="int8")
+    y = np.interp(np.arange(0, len(a), SR / 16000), np.arange(len(a)), a).astype(np.float32)
+    heard = " ".join(seg.text for seg in _WHISPER.transcribe(y, language="en")[0])
+    return difflib.SequenceMatcher(None, _norm_words(heard), _norm_words(text)).ratio(), heard
+
+
+def _decode(path):
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-f", "f32le", "-ac", "1", "-ar", str(SR), "-"],
+                         capture_output=True, check=True).stdout
+    return np.frombuffer(raw, np.float32).copy()
+
+
+def eleven(text, voice_id, model="eleven_v3", stability=0.5, seed=1):
+    import json
+    import urllib.request
+    key = hashlib.md5(f"el|{voice_id}|{model}|{stability}|{seed}|{text}".encode()).hexdigest()
+    mp3 = os.path.join(CACHE, "el_" + key + ".mp3")
+    if not os.path.exists(mp3) or os.path.getsize(mp3) == 0:
+        body = {"text": text, "model_id": model, "seed": seed,
+                "voice_settings": {"stability": stability, "similarity_boost": 0.8}}
+        if model != "eleven_v3":
+            body["voice_settings"].update(style=0.45, use_speaker_boost=True)
+        req = urllib.request.Request(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128",
+            data=json.dumps(body).encode(),
+            headers={"xi-api-key": os.environ.get("ELEVENLABS_API_KEY", "proxy-injected"),
+                     "Content-Type": "application/json"})
+        for attempt in range(4):
+            try:
+                data = urllib.request.urlopen(req, timeout=180).read()
+                open(mp3, "wb").write(data)
+                break
+            except urllib.error.HTTPError as ex:
+                msg = ex.read()[:300]
+                print("ElevenLabs Fehler", ex.code, msg)
+                if ex.code in (401, 402, 403, 422):
+                    raise SystemExit(f"ElevenLabs: {ex.code} {msg}")
+            except Exception as ex:
+                print("ElevenLabs retry", attempt, ex)
+    return _decode(mp3)
+
+
+def trim_norm(a):
+    idx = np.where(np.abs(a) > 0.012)[0]
+    if len(idx):
+        a = a[max(0, idx[0] - int(0.03 * SR)): idx[-1] + int(0.08 * SR)]
+    rms = np.sqrt(np.mean(a ** 2)) + 1e-9
+    a = a * (0.09 / rms)
+    pk = np.max(np.abs(a))
+    if pk > 0.95:
+        a = a * (0.95 / pk)
+    return a
+
+
+def voice_line(c, text, emotion):
+    """Erzeugt eine Sprachzeile; ElevenLabs (mit Emotions-Tag + Prüfung) oder Edge-TTS."""
+    if "el_voice" not in c:
+        return tts(text, c["voice"], c.get("rate", "+0%"), c.get("pitch", "+0Hz"))
+    tagged = text if text.lstrip().startswith("[") else (EMO_TAG.get(emotion, "") + " " + text).strip()
+    best = None
+    for seed in (1, 2, 3):
+        a = trim_norm(eleven(tagged, c["el_voice"], c.get("el_model", "eleven_v3"), c.get("stability", 0.5), seed))
+        score, heard = _check(a, text)
+        if best is None or score > best[0]:
+            best = (score, a, heard)
+        if score >= 0.85:
+            break
+        print(f"  Prüfung {score:.2f} (seed {seed}): '{heard.strip()}' statt '{text}'")
+    return best[1]
+
+
 def envelope(a):
     hop = SR // FPS
     n = int(math.ceil(len(a) / hop))
@@ -101,7 +191,9 @@ def build(ep):
     events = []
     t = 0.4
     shot = None
+    emo = {}
     for item in ep.SCRIPT:
+        emo.update(item.get("e", {}))
         if item.get("shot"):
             shot = item["shot"]
         if "beat" in item:
@@ -111,7 +203,7 @@ def build(ep):
         if "t" not in item:
             continue
         c = ep.CHARS[item["s"]]
-        a = tts(item["t"], c["voice"], c.get("rate", "+0%"), c.get("pitch", "+0Hz"))
+        a = voice_line(c, item.get("say", item["t"]), item.get("tone", emo.get(item["s"], "neutral")))
         dur = len(a) / SR
         events.append(dict(kind="line", shot=shot, start=t, end=t + dur, audio=a, env=envelope(a), item=item))
         t += dur + item.get("gap", ep.GAP)

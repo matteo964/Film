@@ -12,16 +12,16 @@ CORAL = (1.0, 0.55, 0.45)
 
 CHARS = {
     # Walter Hayes – Hausmeister / heimlicher Eigentümer (ruhig, tief)
-    "W": dict(voice="en-US-ChristopherNeural", rate="+4%", pitch="+12Hz",
+    "W": dict(voice="en-US-ChristopherNeural", rate="+4%", pitch="+12Hz", el_voice="CwhRBWXzGAHq8TQ4Fs17",  # Roger
               look=Look(shirt=CYAN, belt=True, moustache=True)),
     # Derek Collins – arroganter Manager
-    "D": dict(voice="en-US-AndrewMultilingualNeural", rate="+8%", pitch="+14Hz",
+    "D": dict(voice="en-US-AndrewMultilingualNeural", rate="+8%", pitch="+14Hz", el_voice="pNInz6obpgDQGcFmaJgB",  # Adam
               look=Look(shirt=WHITE, tie=True, collar=True)),
     # Mia – freundliche Praktikantin
-    "M": dict(voice="en-US-EmmaMultilingualNeural", rate="+6%", pitch="+6Hz",
+    "M": dict(voice="en-US-EmmaMultilingualNeural", rate="+6%", pitch="+6Hz", el_voice="cgSgspJ2msm6clMCkdW9",  # Jessica
               look=Look(shirt=CORAL, ponytail=True, lashes=True)),
     # Margaret – COO, kennt das Geheimnis
-    "G": dict(voice="en-US-MichelleNeural", rate="+6%", pitch="+10Hz",
+    "G": dict(voice="en-US-MichelleNeural", rate="+6%", pitch="+10Hz", el_voice="EXAVITQu4vr4xnSDxMaL",  # Sarah
               look=Look(shirt=PURPLE, bun=True, lashes=True)),
 }
 
