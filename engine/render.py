@@ -139,7 +139,9 @@ def voice_line(c, text, emotion):
         score, heard = _check(a, text)
         if best is None or score > best[0]:
             best = (score, a, heard)
-        if score >= 0.85:
+        has_num = any(w in _norm_words(text) for w in ("one", "two", "three", "four", "five", "six", "seven", "eight",
+                                                         "nine", "ten", "forty", "ninety", "hundred", "thousand"))
+        if score >= (0.5 if has_num else 0.85):
             break
         print(f"  Prüfung {score:.2f} (seed {seed}): '{heard.strip()}' statt '{text}'")
     return best[1]

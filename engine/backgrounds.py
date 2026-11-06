@@ -603,3 +603,184 @@ def conference():
     fill_stroke(cr, rgb("#9AA5B1"), 4)
     surf.flush()
     return surf
+
+
+# ---------------------------------------------------------------- Wohnung (Tag)
+def apartment():
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    cr = cairo.Context(surf)
+    cr.set_source_rgb(*rgb("#F6DCC8"))
+    cr.paint()
+    cr.rectangle(0, 1560, W, H - 1560)
+    cr.set_source_rgb(*rgb("#A9744F"))
+    cr.fill()
+    cr.set_source_rgba(0, 0, 0, 0.12)
+    cr.set_line_width(3)
+    for y in range(1600, H, 55):
+        cr.move_to(0, y)
+        cr.line_to(W, y)
+    cr.stroke()
+    cr.rectangle(0, 1545, W, 18)
+    cr.set_source_rgb(*rgb("#E7BFA3"))
+    cr.fill()
+    # Fenster rechts (Tag)
+    wx, wy, ww, wh = 690, 600, 420, 620
+    cr.rectangle(wx, wy, ww, wh)
+    fill_stroke(cr, rgb("#FFFFFF"), 7)
+    cr.save()
+    cr.rectangle(wx + 20, wy + 20, ww - 40, wh - 40)
+    cr.clip()
+    g = cairo.LinearGradient(0, wy, 0, wy + wh)
+    g.add_color_stop_rgb(0, *rgb("#9FDBF5"))
+    g.add_color_stop_rgb(1, *rgb("#DDF3FB"))
+    cr.set_source(g)
+    cr.paint()
+    random.seed(5)
+    x = wx
+    while x < wx + ww:
+        bw, bh = random.randint(60, 110), random.randint(160, 380)
+        cr.rectangle(x, wy + wh - bh, bw, bh)
+        cr.set_source_rgb(*rgb("#B9D7E6"))
+        cr.fill()
+        x += bw + 10
+    cr.restore()
+    cr.move_to(wx + ww / 2, wy)
+    cr.line_to(wx + ww / 2, wy + wh)
+    stroke_black(cr, 6)
+    cr.rectangle(wx, wy, ww, wh)
+    stroke_black(cr, 7)
+    # Poster
+    for (px, py, col, txt) in ((90, 560, "#2E3A59", "SHIP IT"), (360, 600, "#E7664D", "</>")):
+        cr.rectangle(px, py, 230, 300)
+        fill_stroke(cr, rgb("#8B5E3C"), 6)
+        cr.rectangle(px + 16, py + 16, 198, 268)
+        fill_stroke(cr, rgb(col), 3)
+        _text(cr, txt, px + 115, py + 170, 44, (1, 1, 1))
+    # Regal
+    cr.rectangle(110, 960, 460, 16)
+    fill_stroke(cr, rgb("#8B5E3C"), 4)
+    for i, c in enumerate(("#E7664D", "#3D8BFF", "#F2C230", "#5AC05A", "#7A5AF5", "#E7664D")):
+        cr.rectangle(140 + i * 44, 870, 34, 90)
+        fill_stroke(cr, rgb(c), 3)
+    cr.arc(470, 920, 40, 0, 2 * math.pi)
+    fill_stroke(cr, rgb("#4FA63E"), 4)
+    cr.rectangle(450, 925, 40, 35)
+    fill_stroke(cr, rgb("#C46A3C"), 4)
+    surf.flush()
+    return surf
+
+
+def couch_back(cr):
+    rrect(cr, 30, 1150, 640, 260, 50)
+    fill_stroke(cr, rgb("#6FAF8C"), 6)
+
+
+def couch_front(cr):
+    rrect(cr, 30, 1330, 640, 150, 30)
+    fill_stroke(cr, rgb("#5E9E7B"), 6)
+    for x in (10, 620):
+        rrect(cr, x, 1250, 80, 230, 30)
+        fill_stroke(cr, rgb("#548F6F"), 6)
+    for x in (80, 600):
+        cr.rectangle(x, 1480, 22, 60)
+        fill_stroke(cr, rgb("#2B2B2B"), 4)
+
+
+# ---------------------------------------------------------------- Launch-Bühne
+def stage(mode="site"):
+    def make():
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(surf)
+        g = cairo.LinearGradient(0, 0, 0, H)
+        g.add_color_stop_rgb(0, *rgb("#141B33"))
+        g.add_color_stop_rgb(1, *rgb("#26315A"))
+        cr.set_source(g)
+        cr.paint()
+        cr.rectangle(0, 1560, W, H - 1560)
+        cr.set_source_rgb(*rgb("#3B2A4F"))
+        cr.fill()
+        cr.rectangle(0, 1545, W, 18)
+        cr.set_source_rgb(*rgb("#5B4775"))
+        cr.fill()
+        # Spots
+        for sx in (180, 900):
+            cr.move_to(sx - 30, 440)
+            cr.line_to(sx + 30, 440)
+            cr.line_to(sx + 260 * (1 if sx < 540 else -1) + 160, 1560)
+            cr.line_to(sx + 260 * (1 if sx < 540 else -1) - 160, 1560)
+            cr.close_path()
+            cr.set_source_rgba(1, 0.95, 0.75, 0.0)
+            cr.fill()
+        # Banner
+        rrect(cr, 330, 412, 420, 70, 14)
+        fill_stroke(cr, rgb("#E0A33A"), 5)
+        _text(cr, "LAUNCH DAY", 540, 463, 40, rgb("#1B1F2E"))
+        # Leinwand
+        sx, sy, sw, sh = 90, 495, 900, 400
+        rrect(cr, sx, sy, sw, sh, 12)
+        fill_stroke(cr, rgb("#0B0E16"), 8)
+        ix, iy, iw, ih = sx + 22, sy + 22, sw - 44, sh - 44
+        cr.save()
+        cr.rectangle(ix, iy, iw, ih)
+        cr.clip()
+        if mode in ("site", "back"):
+            cr.set_source_rgb(1, 1, 1)
+            cr.paint()
+            cr.rectangle(ix, iy, iw, 48)
+            cr.set_source_rgb(*rgb("#1E2A44"))
+            cr.fill()
+            _text(cr, "GRANT & CO.", ix + 120, iy + 34, 26, (1, 1, 1))
+            for k, s in enumerate(("Home", "Products", "Contact")):
+                _text(cr, s, ix + 520 + k * 110, iy + 32, 20, rgb("#C9D3E6"), bold=False)
+            g2 = cairo.LinearGradient(ix, iy + 48, ix + iw, iy + 250)
+            g2.add_color_stop_rgb(0, *rgb("#5B8CFF"))
+            g2.add_color_stop_rgb(1, *rgb("#9A6BFF"))
+            cr.rectangle(ix, iy + 48, iw, 200)
+            cr.set_source(g2)
+            cr.fill()
+            _text(cr, "Building the Future.", ix + iw / 2, iy + 135, 48, (1, 1, 1))
+            rrect(cr, ix + iw / 2 - 110, iy + 165, 220, 52, 26)
+            fill_stroke(cr, rgb("#FFD45C"), 3)
+            _text(cr, "Get started", ix + iw / 2, iy + 200, 26, rgb("#1B1F2E"))
+            for k in range(3):
+                rrect(cr, ix + 40 + k * 280, iy + 268, 240, 70, 12)
+                fill_stroke(cr, rgb("#EEF2FA"), 3, rgb("#C9D3E6"))
+            if mode == "back":
+                rrect(cr, ix + iw - 230, iy + 60, 210, 52, 26)
+                fill_stroke(cr, rgb("#33C46A"), 3)
+                _text(cr, "ONLINE", ix + iw - 125, iy + 96, 28, (1, 1, 1))
+        else:
+            cr.set_source_rgb(*rgb("#1A0B0E"))
+            cr.paint()
+            cr.move_to(ix + iw / 2, iy + 18)
+            cr.line_to(ix + iw / 2 + 50, iy + 105)
+            cr.line_to(ix + iw / 2 - 50, iy + 105)
+            cr.close_path()
+            fill_stroke(cr, rgb("#FF3B3B"), 5, rgb("#FF3B3B"))
+            _text(cr, "!", ix + iw / 2, iy + 98, 58, rgb("#1A0B0E"))
+            _text(cr, "WEBSITE SUSPENDED", ix + iw / 2, iy + 165, 54, rgb("#FF3B3B"))
+            _text(cr, "Reason: Invoice #1042 unpaid", ix + iw / 2, iy + 220, 34, (1, 1, 1), bold=False)
+            _text(cr, "Amount due: $4,800", ix + iw / 2, iy + 265, 34, (1, 1, 1), bold=False)
+            _text(cr, "Contact: Zoe Parker Design", ix + iw / 2, iy + 315, 30, rgb("#FFB3B3"), bold=False)
+        cr.restore()
+        surf.flush()
+        return surf
+    return make
+
+
+def podium(cr):
+    cr.move_to(150, 1260)
+    cr.line_to(370, 1260)
+    cr.line_to(345, 1560)
+    cr.line_to(175, 1560)
+    cr.close_path()
+    fill_stroke(cr, rgb("#2C2F3A"), 6)
+    rrect(cr, 135, 1240, 250, 34, 8)
+    fill_stroke(cr, rgb("#3A3E4C"), 5)
+    _text(cr, "G&C", 260, 1420, 50, rgb("#E0A33A"))
+    cr.move_to(300, 1240)
+    cr.line_to(330, 1150)
+    stroke_black(cr, 5)
+    cr.arc(333, 1140, 12, 0, 2 * math.pi)
+    cr.set_source_rgb(*BLACK)
+    cr.fill()

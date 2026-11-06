@@ -34,6 +34,9 @@ POSES = {
     "lap_phone": {"L": (60, -400), "R": (80, -735)},
     "lap_explain": {"L": (60, -400), "R": (160, -600)},
     "mug":     {"L": (-50, -392, "out"), "R": (110, -560)},
+    "type":    {"L": (60, -440), "R": (125, -445)},
+    "type2":   {"L": (75, -446), "R": (110, -440)},
+    "tablet":  {"L": (110, -560), "R": (150, -570)},
 }
 
 
@@ -449,6 +452,25 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
             cr.curve_to(mx + 10, my - 8, mx + 16, my + 6, mx + 20, my)
         stroke_black(cr, 6)
 
+    if st.get("prop") == "laptop":
+        lx, ly = 95, hip_y - 6
+        cr.move_to(lx - 70, ly)
+        cr.line_to(lx + 70, ly)
+        cr.line_to(lx + 60, ly + 12)
+        cr.line_to(lx - 60, ly + 12)
+        cr.close_path()
+        cr.set_source_rgb(0.75, 0.78, 0.82)
+        cr.fill_preserve()
+        stroke_black(cr, 4)
+        cr.move_to(lx - 64, ly)
+        cr.line_to(lx - 10, ly - 95)
+        cr.line_to(lx + 8, ly - 92)
+        cr.line_to(lx - 44, ly)
+        cr.close_path()
+        cr.set_source_rgb(0.25, 0.28, 0.33)
+        cr.fill_preserve()
+        stroke_black(cr, 4)
+
     # Vorderer Arm (rechts)
     hr = draw_arm(cr, 24, sh_y + 6, hands["R"], 1)
     prop = st.get("prop")
@@ -458,6 +480,21 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         draw_phone(cr, hr[0], hr[1])
     elif prop == "mop":
         draw_mop(cr, hr[0], hr[1])
+        cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
+        cr.set_source_rgb(*BLACK)
+        cr.fill()
+    elif prop == "tablet":
+        cr.save()
+        cr.translate(hr[0] - 20, hr[1] - 10)
+        cr.rotate(-0.25)
+        rrect(cr, -55, -75, 110, 80, 8)
+        cr.set_source_rgb(0.2, 0.22, 0.26)
+        cr.fill_preserve()
+        stroke_black(cr, 4)
+        cr.rectangle(-45, -66, 90, 62)
+        cr.set_source_rgb(0.55, 0.85, 0.95)
+        cr.fill()
+        cr.restore()
         cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
         cr.set_source_rgb(*BLACK)
         cr.fill()
