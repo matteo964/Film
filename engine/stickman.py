@@ -28,6 +28,12 @@ POSES = {
     "desk_lean": {"L": (10, -490, "out"), "R": (70, -495, "out")},
     "chest":   {"L": (-50, -392, "out"), "R": (8, -600)},
     "pray":    {"L": (55, -620), "R": (75, -615)},
+    "mop":     {"L": (40, -520, "out"), "R": (75, -600)},
+    "mop2":    {"L": (60, -500, "out"), "R": (100, -590)},
+    "lap":     {"L": (60, -400), "R": (110, -405)},
+    "lap_phone": {"L": (60, -400), "R": (80, -735)},
+    "lap_explain": {"L": (60, -400), "R": (160, -600)},
+    "mug":     {"L": (-50, -392, "out"), "R": (110, -560)},
 }
 
 
@@ -89,13 +95,14 @@ class Look:
     """Aussehen einer Figur."""
 
     def __init__(self, shirt=(0.15, 0.80, 0.91), tie=False, bun=False, cap=False,
-                 belt=False, lashes=False, moustache=False, scarf=False, collar=False,
+                 belt=False, lashes=False, ponytail=False, moustache=False, scarf=False, collar=False,
                  hair_color=(0.35, 0.22, 0.14)):
         self.shirt = shirt
         self.tie = tie
         self.bun = bun
         self.cap = cap
         self.belt = belt
+        self.ponytail = ponytail
         self.lashes = lashes
         self.moustache = moustache
         self.scarf = scarf
@@ -162,7 +169,43 @@ def draw_phone(cr, hx, hy):
     cr.fill()
 
 
-def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.0):
+def draw_mop(cr, hx, hy):
+    bx, by = hx + 55, -6
+    tx, ty = hx - 14, hy - 60
+    cr.move_to(tx, ty)
+    cr.line_to(bx, by - 30)
+    cr.set_source_rgb(0.55, 0.36, 0.18)
+    cr.set_line_width(12)
+    cr.set_line_cap(cairo.LINE_CAP_ROUND)
+    cr.stroke_preserve()
+    cr.set_source_rgb(*BLACK)
+    cr.set_line_width(2)
+    cr.stroke()
+    rrect(cr, bx - 45, by - 40, 90, 18, 6)
+    cr.set_source_rgb(0.3, 0.45, 0.85)
+    cr.fill_preserve()
+    stroke_black(cr, 3)
+    for k in range(9):
+        cr.move_to(bx - 40 + k * 10, by - 22)
+        cr.line_to(bx - 44 + k * 11, by + 4)
+    cr.set_source_rgb(0.85, 0.85, 0.82)
+    cr.set_line_width(7)
+    cr.stroke()
+
+
+def draw_mug(cr, hx, hy):
+    rrect(cr, hx - 18, hy - 50, 40, 52, 6)
+    cr.set_source_rgb(0.95, 0.95, 0.95)
+    cr.fill_preserve()
+    stroke_black(cr, 4)
+    cr.arc(hx + 26, hy - 26, 12, -1.4, 1.4)
+    stroke_black(cr, 5)
+    cr.arc(hx, hy, 15, 0, 2 * math.pi)
+    cr.set_source_rgb(*BLACK)
+    cr.fill()
+
+
+def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.0, sit=False):
     """st: dict mit hands(L,R), emotion, mouth_open(0..1), blink(0..1), look(dx,dy), prop."""
     cr.save()
     if shiver:
@@ -178,7 +221,14 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
     head_cy = -770 + bob
 
     # Beine
-    if not hide_legs:
+    if sit:
+        for side in (-1, 1):
+            cr.move_to(side * 12, hip_y + 10)
+            cr.line_to(150 + side * 12, hip_y + 4)
+            cr.line_to(160 + side * 14, hip_y + 250)
+            cr.line_to(195 + side * 14, hip_y + 252)
+            stroke_black(cr, 12)
+    elif not hide_legs:
         for side in (-1, 1):
             cr.move_to(side * 14, hip_y + 10)
             fx = side * 42
@@ -197,6 +247,17 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
             cr.set_source_rgb(*HEAD)
             cr.fill_preserve()
             stroke_black(cr, 6)
+
+    if look.ponytail:
+        cr.save()
+        cr.translate(-96, head_cy - 20 + bob * 0.5)
+        cr.rotate(0.35 + math.sin(t * 3) * 0.05)
+        cr.scale(32, 70)
+        cr.arc(0, 0.6, 1, 0, 2 * math.pi)
+        cr.restore()
+        cr.set_source_rgb(*HEAD)
+        cr.fill_preserve()
+        stroke_black(cr, 6)
 
     # Torso
     cr.move_to(-34, sh_y - 8)
@@ -395,4 +456,11 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         draw_keys(cr, hr[0], hr[1], t)
     elif prop == "phone":
         draw_phone(cr, hr[0], hr[1])
+    elif prop == "mop":
+        draw_mop(cr, hr[0], hr[1])
+        cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
+        cr.set_source_rgb(*BLACK)
+        cr.fill()
+    elif prop == "mug":
+        draw_mug(cr, hr[0], hr[1])
     cr.restore()

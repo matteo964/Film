@@ -422,3 +422,184 @@ def snow_overlay(cr, t):
         cr.arc(x, y, r, 0, 2 * math.pi)
         cr.fill()
     cr.restore()
+
+
+def _text(cr, s, x, y, size, col, font="TikTok Sans", bold=True, center=True):
+    cr.select_font_face(font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD if bold else cairo.FONT_WEIGHT_NORMAL)
+    cr.set_font_size(size)
+    e = cr.text_extents(s)
+    cr.new_path()
+    cr.move_to(x - (e.width / 2 + e.x_bearing if center else 0), y)
+    cr.set_source_rgb(*col)
+    cr.show_text(s)
+    cr.new_path()
+
+
+# ---------------------------------------------------------------- Penthouse (Nacht)
+def penthouse():
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    cr = cairo.Context(surf)
+    g = cairo.LinearGradient(0, 0, 0, H)
+    g.add_color_stop_rgb(0, *rgb("#22305A"))
+    g.add_color_stop_rgb(1, *rgb("#2F4170"))
+    cr.set_source(g)
+    cr.paint()
+    # Boden Holz dunkel
+    cr.rectangle(0, 1560, W, H - 1560)
+    cr.set_source_rgb(*rgb("#4A3427"))
+    cr.fill()
+    cr.set_source_rgba(0, 0, 0, 0.18)
+    cr.set_line_width(3)
+    for y in range(1600, H, 60):
+        cr.move_to(0, y)
+        cr.line_to(W, y)
+    cr.stroke()
+    # Großes Fenster mit Skyline
+    wx, wy, ww, wh = 560, 560, 540, 860
+    cr.rectangle(wx, wy, ww, wh)
+    fill_stroke(cr, rgb("#0E1630"), 7)
+    cr.save()
+    cr.rectangle(wx, wy, ww, wh)
+    cr.clip()
+    cr.arc(wx + 380, wy + 140, 55, 0, 2 * math.pi)
+    cr.set_source_rgb(*rgb("#F4F1D0"))
+    cr.fill()
+    random.seed(11)
+    x = wx
+    while x < wx + ww:
+        bw, bh = random.randint(60, 120), random.randint(260, 640)
+        cr.rectangle(x, wy + wh - bh, bw, bh)
+        cr.set_source_rgb(*rgb("#1A2547"))
+        cr.fill()
+        for yy in range(int(wy + wh - bh + 20), wy + wh, 34):
+            for xx in range(x + 12, x + bw - 12, 24):
+                if random.random() < 0.45:
+                    cr.rectangle(xx, yy, 12, 16)
+                    cr.set_source_rgb(*rgb("#FFD86B"))
+                    cr.fill()
+        x += bw + random.randint(6, 18)
+    cr.restore()
+    cr.move_to(wx + ww / 2, wy)
+    cr.line_to(wx + ww / 2, wy + wh)
+    cr.move_to(wx, wy + wh / 2)
+    cr.line_to(wx + ww, wy + wh / 2)
+    cr.set_source_rgb(*BLACK)
+    cr.set_line_width(7)
+    cr.stroke()
+    # Bild an der Wand: Magazin-Cover
+    fx, fy = 70, 465
+    cr.rectangle(fx, fy, 300, 400)
+    fill_stroke(cr, rgb("#C9A24A"), 7)
+    cr.rectangle(fx + 22, fy + 22, 256, 356)
+    fill_stroke(cr, rgb("#F4EEE2"), 4)
+    _text(cr, "BUSINESS", fx + 150, fy + 75, 40, rgb("#B3261E"))
+    _text(cr, "WEEKLY", fx + 150, fy + 115, 34, rgb("#B3261E"))
+    cr.arc(fx + 150, fy + 210, 55, 0, 2 * math.pi)
+    fill_stroke(cr, (1, 1, 1), 5)
+    cr.arc(fx + 150, fy + 210, 55, math.pi * 1.05, math.pi * 1.95)
+    cr.set_source_rgb(0.1, 0.1, 0.1)
+    cr.fill()
+    _text(cr, "?", fx + 150, fy + 238, 60, rgb("#B3261E"))
+    _text(cr, "THE INVISIBLE", fx + 150, fy + 310, 30, BLACK)
+    _text(cr, "OWNER", fx + 150, fy + 348, 34, BLACK)
+    # Stehlampe
+    cr.move_to(480, 1560)
+    cr.line_to(480, 1060)
+    stroke_black(cr, 8)
+    cr.move_to(420, 1060)
+    cr.line_to(540, 1060)
+    cr.line_to(515, 960)
+    cr.line_to(445, 960)
+    cr.close_path()
+    fill_stroke(cr, rgb("#F6D488"), 5)
+    gl = cairo.RadialGradient(480, 1060, 10, 480, 1060, 420)
+    gl.add_color_stop_rgba(0, 1, 0.85, 0.45, 0.35)
+    gl.add_color_stop_rgba(1, 1, 0.85, 0.45, 0)
+    cr.set_source(gl)
+    cr.paint()
+    surf.flush()
+    return surf
+
+
+def sofa_back(cr):
+    rrect(cr, 30, 1150, 640, 260, 50)
+    fill_stroke(cr, rgb("#5C86C8"), 6)
+
+
+def sofa_front(cr):
+    rrect(cr, 30, 1330, 640, 150, 30)
+    fill_stroke(cr, rgb("#4F78B8"), 6)
+    for x in (10, 620):
+        rrect(cr, x, 1250, 80, 230, 30)
+        fill_stroke(cr, rgb("#456CA9"), 6)
+    for x in (80, 600):
+        cr.rectangle(x, 1480, 22, 60)
+        fill_stroke(cr, rgb("#2B2B2B"), 4)
+
+
+# ---------------------------------------------------------------- Konferenzraum
+def conference():
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    cr = cairo.Context(surf)
+    cr.set_source_rgb(*rgb("#E3EAF1"))
+    cr.paint()
+    cr.rectangle(0, 0, W, 470)
+    cr.set_source_rgb(*rgb("#D3DDE7"))
+    cr.fill()
+    cr.rectangle(0, 1560, W, H - 1560)
+    cr.set_source_rgb(*rgb("#B98A5E"))
+    cr.fill()
+    cr.set_source_rgba(0, 0, 0, 0.12)
+    cr.set_line_width(3)
+    for x in range(-200, W + 400, 120):
+        cr.move_to(x, 1560)
+        cr.line_to(x - 200, H)
+    cr.stroke()
+    cr.rectangle(0, 1545, W, 18)
+    cr.set_source_rgb(*rgb("#8EA0B2"))
+    cr.fill()
+    # Firmenschriftzug
+    _text(cr, "HAYES INDUSTRIES", 540, 560, 54, rgb("#2C4A6E"))
+    cr.rectangle(340, 580, 400, 6)
+    cr.set_source_rgb(*rgb("#E0A33A"))
+    cr.fill()
+    # Bildschirm mit Chart
+    sx, sy, sw, sh = 250, 640, 580, 360
+    rrect(cr, sx, sy, sw, sh, 14)
+    fill_stroke(cr, rgb("#22262E"), 7)
+    cr.rectangle(sx + 24, sy + 24, sw - 48, sh - 48)
+    cr.set_source_rgb(*rgb("#F7F9FC"))
+    cr.fill()
+    _text(cr, "Q3 RESULTS", sx + sw / 2, sy + 80, 40, rgb("#22262E"))
+    for i, (hgt, c) in enumerate(((90, "#7BB6F0"), (140, "#7BB6F0"), (120, "#7BB6F0"), (200, "#3D8BFF"))):
+        bx = sx + 90 + i * 110
+        cr.rectangle(bx, sy + sh - 50 - hgt, 70, hgt)
+        fill_stroke(cr, rgb(c), 3)
+    # Fenster rechts / Pflanze links
+    cr.rectangle(900, 640, 220, 560)
+    fill_stroke(cr, rgb("#BFE3F2"), 6)
+    cr.move_to(900, 920)
+    cr.line_to(1120, 920)
+    stroke_black(cr, 5)
+    rrect(cr, 60, 1400, 120, 150, 14)
+    fill_stroke(cr, rgb("#5E6B78"), 5)
+    for (dx, dy, r) in ((-35, -40, 55), (35, -70, 60), (0, -130, 60)):
+        cr.arc(120 + dx, 1400 + dy, r, 0, 2 * math.pi)
+        fill_stroke(cr, rgb("#4FA63E"), 5)
+    # Stuhllehnen + langer Tisch
+    for x in (250, 420, 590, 760):
+        rrect(cr, x, 1110, 120, 200, 30)
+        fill_stroke(cr, rgb("#3A3F48"), 5)
+    rrect(cr, 180, 1270, 760, 46, 14)
+    fill_stroke(cr, rgb("#8A5A36"), 6)
+    cr.rectangle(220, 1316, 680, 120)
+    fill_stroke(cr, rgb("#734A2C"), 5)
+    # Laptop auf Tisch
+    cr.move_to(470, 1272)
+    cr.line_to(490, 1200)
+    cr.line_to(590, 1200)
+    cr.line_to(600, 1272)
+    cr.close_path()
+    fill_stroke(cr, rgb("#9AA5B1"), 4)
+    surf.flush()
+    return surf

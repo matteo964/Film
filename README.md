@@ -8,6 +8,7 @@
 Rendern:
 ```
 pip install pycairo edge-tts numpy
-python3 engine/render.py episodes/hausmeister_teil1.py            # komplett
-python3 engine/render.py episodes/hausmeister_teil1.py --preview 10 # 10-s-Vorschau
+python3 engine/render.py episodes/owner/part1.py   # -> output/owner_part1.mp4
+python3 engine/render.py episodes/owner/part2.py --preview 10  # 10-s-Vorschau
 ```
+- `archive/` – erste deutsche Testversion (Hausmeister)

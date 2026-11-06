@@ -287,7 +287,8 @@ def render(ep, out, preview=None, start=0.0):
             st = dict(hands=stt.hands, emotion=stt.emotion, mouth_open=mo, blink=blink, look=lookv,
                       prop=stt.prop)
             draw_figure(cr, opts.get("look", ep.CHARS[cid]["look"]), x, y, sc, fc, st, t,
-                        hide_legs=opts.get("hide_legs", False), shiver=opts.get("shiver", 0.0))
+                        hide_legs=opts.get("hide_legs", False), shiver=opts.get("shiver", 0.0),
+                        sit=opts.get("sit", False))
         cr.restore()
 
         if ep.HOOK and (ep.HOOK_UNTIL is None or t < ep.HOOK_UNTIL):
@@ -311,10 +312,14 @@ if __name__ == "__main__":
         preview = float(sys.argv[sys.argv.index("--preview") + 1])
     if "--start" in sys.argv:
         start = float(sys.argv[sys.argv.index("--start") + 1])
+    sys.path.insert(0, os.path.dirname(os.path.abspath(path)))
     spec = importlib.util.spec_from_file_location("ep", path)
     ep = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(ep)
     os.makedirs(os.path.join(ROOT, "output"), exist_ok=True)
     name = os.path.splitext(os.path.basename(path))[0]
+    parent = os.path.basename(os.path.dirname(os.path.abspath(path)))
+    if parent != "episodes":
+        name = parent + "_" + name
     out = os.path.join(ROOT, "output", name + ("_preview" if preview else "") + ".mp4")
     render(ep, out, preview, start)
