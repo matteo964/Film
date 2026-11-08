@@ -27,6 +27,7 @@ HOT = ("shout", "angry", "panick", "desperate", "excited", "outraged", "horrifie
 
 def items(path, ep_dir):
     sys.path.insert(0, ep_dir)
+    sys.modules.pop("common", None)
     spec = importlib.util.spec_from_file_location("ep", path)
     ep = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(ep)
