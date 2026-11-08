@@ -882,3 +882,100 @@ def student_desk(cr, x=150):
         cr.move_to(x + dx, 1354)
         cr.line_to(x + dx, 1560)
         stroke_black(cr, 8)
+
+
+# ---------------------------------------------------------------- Großraumbüro mit Wand-Screen
+def openoffice(mode="logo"):
+    def bot(cr, x, y, r):
+        rrect(cr, x - r, y - r * 0.8, 2 * r, 1.6 * r, r * 0.35)
+        fill_stroke(cr, rgb("#5B8CFF"), 4)
+        for dx in (-r * 0.4, r * 0.4):
+            cr.arc(x + dx, y - r * 0.1, r * 0.22, 0, 2 * math.pi)
+            fill_stroke(cr, (1, 1, 1), 3)
+        cr.move_to(x - r * 0.35, y + r * 0.35)
+        cr.curve_to(x - r * 0.1, y + r * 0.55, x + r * 0.1, y + r * 0.55, x + r * 0.35, y + r * 0.35)
+        stroke_black(cr, 4)
+        cr.move_to(x, y - r * 0.8)
+        cr.line_to(x, y - r * 1.15)
+        stroke_black(cr, 4)
+        cr.arc(x, y - r * 1.2, r * 0.12, 0, 2 * math.pi)
+        fill_stroke(cr, rgb("#FFD45C"), 3)
+
+    def make():
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(surf)
+        cr.set_source_rgb(*rgb("#E8EEF3"))
+        cr.paint()
+        cr.rectangle(0, 1560, W, H - 1560)
+        cr.set_source_rgb(*rgb("#9AA7B4"))
+        cr.fill()
+        cr.set_source_rgba(0, 0, 0, 0.08)
+        cr.set_line_width(3)
+        for y in (1620, 1700, 1800, 1920):
+            cr.move_to(0, y)
+            cr.line_to(W, y)
+        cr.stroke()
+        cr.rectangle(0, 1545, W, 18)
+        cr.set_source_rgb(*rgb("#7E8C99"))
+        cr.fill()
+        # Fenster
+        for wx in (0, 860):
+            cr.rectangle(wx, 640, 220, 520)
+            fill_stroke(cr, rgb("#C6E6F5"), 6)
+            cr.move_to(wx + 110, 640)
+            cr.line_to(wx + 110, 1160)
+            stroke_black(cr, 4)
+        # Wand-Screen
+        sx, sy, sw, sh = 200, 470, 680, 420
+        rrect(cr, sx, sy, sw, sh, 14)
+        fill_stroke(cr, rgb("#1B1F27"), 8)
+        ix, iy, iw, ih = sx + 20, sy + 20, sw - 40, sh - 40
+        cr.save()
+        cr.rectangle(ix, iy, iw, ih)
+        cr.clip()
+        cr.set_source_rgb(*rgb("#F4F7FD"))
+        cr.paint()
+        cr.rectangle(ix, iy, iw, 54)
+        cr.set_source_rgb(*rgb("#2D3E66"))
+        cr.fill()
+        _text(cr, "PayBot 3000  ·  AI Payroll", ix + iw / 2, iy + 38, 28, (1, 1, 1))
+        if mode == "logo":
+            bot(cr, ix + iw / 2, iy + 175, 80)
+            _text(cr, "Payroll on autopilot!", ix + iw / 2, iy + 320, 36, rgb("#2D3E66"))
+        elif mode == "error":
+            bot(cr, ix + 90, iy + 140, 46)
+            rrect(cr, ix + 160, iy + 80, iw - 190, 210, 18)
+            fill_stroke(cr, (1, 1, 1), 3, rgb("#C9D3E6"))
+            _text(cr, "Sorry! I can't access the bank.", ix + 175, iy + 130, 28, rgb("#1B1F27"), bold=False, center=False)
+            _text(cr, "Please contact the", ix + 175, iy + 180, 28, rgb("#1B1F27"), bold=False, center=False)
+            _text(cr, "authorized signer:", ix + 175, iy + 220, 28, rgb("#1B1F27"), bold=False, center=False)
+            _text(cr, "DAVE MILLER", ix + 175, iy + 268, 34, rgb("#E23B3B"), center=False)
+            rrect(cr, ix + 30, iy + 305, iw - 60, 40, 10)
+            fill_stroke(cr, rgb("#FFE3E3"), 3, rgb("#E23B3B"))
+            _text(cr, "Payroll status: FAILED  (0 / 200 paid)", ix + iw / 2, iy + 334, 26, rgb("#B3261E"))
+        elif mode == "paid":
+            cr.arc(ix + iw / 2, iy + 170, 80, 0, 2 * math.pi)
+            fill_stroke(cr, rgb("#33C46A"), 5)
+            cr.move_to(ix + iw / 2 - 40, iy + 170)
+            cr.line_to(ix + iw / 2 - 10, iy + 200)
+            cr.line_to(ix + iw / 2 + 45, iy + 140)
+            cr.set_source_rgb(1, 1, 1)
+            cr.set_line_width(16)
+            cr.set_line_cap(cairo.LINE_CAP_ROUND)
+            cr.stroke()
+            _text(cr, "PAYROLL COMPLETE", ix + iw / 2, iy + 305, 40, rgb("#1F8A47"))
+            _text(cr, "200 / 200 paid  ·  approved by D. Miller", ix + iw / 2, iy + 345, 24, rgb("#2D3E66"), bold=False)
+        cr.restore()
+        # Schreibtischreihe hinten
+        for dx in (60, 400, 740):
+            rrect(cr, dx + 70, 1150, 140, 100, 8)
+            fill_stroke(cr, rgb("#3A3F48"), 4)
+            cr.rectangle(dx + 130, 1250, 20, 30)
+            fill_stroke(cr, rgb("#3A3F48"), 3)
+        cr.rectangle(30, 1280, 1020, 26)
+        fill_stroke(cr, rgb("#D9DEE4"), 5)
+        cr.rectangle(50, 1306, 980, 140)
+        fill_stroke(cr, rgb("#BCC4CD"), 5)
+        surf.flush()
+        return surf
+    return make
