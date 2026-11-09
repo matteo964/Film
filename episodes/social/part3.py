@@ -1,0 +1,52 @@
+"""Part 3."""
+from common import *  # noqa: F401,F403
+from common import HOOK_BASE
+
+HOOK = [HOOK_BASE[0], HOOK_BASE[1] + " Part 3.."]
+HOOK_UNTIL = 8.0
+
+SCRIPT = [
+    dict(shot="chloe_RJ", s="R", t="Five million?", e={"R": "shocked", "J": "shocked"}, p={"R": "idle", "J": "point"},
+         cam="close", punch=True, say="[stunned] Five... MILLION?"),
+    dict(shot="chloe_R", s="R", t="Okay. Okay. I'm calling her.", e={"R": "worried"}, p={"R": "phone"},
+         prop={"R": "phone"}, say="[nervously] Okay. Okay. I'm calling her."),
+    dict(s="R", t="Chloe! There she is! Our favorite content creator!", e={"R": "happy"},
+         say="[fake cheerful] Chloe! There she is! Our favorite content creator!"),
+    dict(shot="home", s="C", t="Hi Rick. How's the charisma?", e={"C": "smug", "R": "worried"},
+         p={"C": "lap_phone"}, prop={"C": "phone"}, cam="med"),
+    dict(shot="chloe_R", s="R", t="Look, the followers are leaving, and Sprinto wants their money back.", e={"R": "worried"}),
+    dict(shot="home", s="C", t="Page four. I did tell you.", e={"C": "calm"}),
+    dict(shot="chloe_R", s="R", t="Fine. You can come back. Same salary.", e={"R": "annoyed"}),
+    dict(shot="home", s="C", t="Three companies offered me a job this morning. One of them offered double.",
+         e={"C": "smug"}),
+    dict(shot="chloe_R", s="R", t="Double?", e={"R": "shocked"}, punch=True, say="[shocked] DOUBLE?"),
+    dict(shot="chloe_RP", s="P", t="Give me the phone, Rick.", e={"P": "annoyed", "R": "worried"},
+         p={"P": "stop", "R": "idle"}, prop={"R": None}),
+    dict(s="P", t="Chloe, it's Grace from Sprinto. We'd love to keep working with you. Name your terms.",
+         p={"P": "phone"}, prop={"P": "phone"}, e={"P": "happy"}),
+    dict(shot="home", s="C", t="Head of marketing. Double salary. Full creative control.", e={"C": "neutral"},
+         p={"C": "lap_explain"}),
+    dict(shot="chloe_RP", s="R", t="Full creative control?", e={"R": "shocked"}),
+    dict(shot="home", s="C", t="And one more thing. Rick is in my next video.", e={"C": "smug"}, p={"C": "lap_phone"},
+         cam="med"),
+    dict(shot="chloe_RP", s="R", t="Doing what?", e={"R": "confused"}),
+    dict(shot="home", s="C", t="Apologizing. To two million followers. With a dance.", e={"C": "smug"}, cam="close",
+         say="[mischievously] Apologizing. To two million followers. With a dance."),
+    dict(shot="chloe_RP", s="R", t="Absolutely not!", e={"R": "angry"}, p={"R": "stop"}, say="[outraged] Absolutely NOT!"),
+    dict(s="P", t="Rick. Two hundred thousand dollars.", e={"P": "smug"}, p={"P": "cross"}, prop={"P": None}),
+    dict(s="R", t="What's the dance?", e={"R": "sad"}, p={"R": "idle"}, say="[defeated] ...What's the dance?",
+         gap=0.6),
+    dict(shot="back_RC", beat=0.6, e={"C": "happy", "R": "worried"}, p={"C": "film", "R": "idle"},
+         prop={"C": "phone"}),
+    dict(s="C", t="Okay Rick, we're live. Two million people are watching.", e={"C": "happy"}),
+    dict(s="R", t="I'm sorry I fired Chloe. Please come back. And buy coffee.", e={"R": "sad"},
+         p={"R": ["dance1", "dance2", "dance3", "dance2"]}, rate=0.35,
+         say="[embarrassed, dancing] I'm sorry I fired Chloe. Please come back. And buy coffee."),
+    dict(shot="back_RJ", s="J", t="Sir! Half a million new followers! People love it!", e={"J": "happy", "R": "shocked"},
+         p={"J": "panic", "R": "idle"}, look={"J": "up"}, sfx=[("ding", 0.0)],
+         say="[excited] Sir! Half a million new followers! People love it!"),
+    dict(s="J", t="Top comment. Best video this account ever made.", look={"J": "up"}, e={"J": "happy"}),
+    dict(shot="back_RC", s="C", t="See, Rick? You do have charisma. Just point the phone and dance.",
+         e={"C": "smug", "R": "sad"}, p={"C": "hips"}, prop={"C": None}, cam="med",
+         say="[playfully] See, Rick? You DO have charisma. Just point the phone, and dance.", gap=0.8),
+]

@@ -383,7 +383,7 @@ def render(ep, out, preview=None, start=0.0):
             stt = states[cid]
             pose = stt.pose
             if isinstance(pose, list):
-                pose = pose[int(lt / 1.1) % len(pose)] if speaker == cid else pose[0]
+                pose = pose[int(lt / it.get("rate", 1.1)) % len(pose)] if (speaker == cid or it.get("always")) else pose[0]
             tgt = POSES[pose]
             for side in ("L", "R"):
                 hx, hy = stt.hands[side][:2]

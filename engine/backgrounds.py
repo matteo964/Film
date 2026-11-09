@@ -979,3 +979,151 @@ def openoffice(mode="logo"):
         surf.flush()
         return surf
     return make
+
+
+# ---------------------------------------------------------------- Marketing-Raum mit Social-Media-Screen
+def _heart(cr, x, y, r, col):
+    cr.new_path()
+    cr.move_to(x, y + r * 0.9)
+    cr.curve_to(x - r * 1.6, y - r * 0.2, x - r * 0.6, y - r * 1.3, x, y - r * 0.35)
+    cr.curve_to(x + r * 0.6, y - r * 1.3, x + r * 1.6, y - r * 0.2, x, y + r * 0.9)
+    cr.close_path()
+    cr.set_source_rgb(*col)
+    cr.fill()
+
+
+def _mini_stick(cr, x, y, s, shirt, dance=False, bun=False):
+    cr.save()
+    cr.translate(x, y)
+    cr.scale(s, s)
+    if bun:
+        cr.arc(-30, -128, 14, 0, 2 * math.pi)
+        fill_stroke(cr, (1, 1, 1), 3)
+    cr.arc(0, -110, 30, 0, 2 * math.pi)
+    fill_stroke(cr, (1, 1, 1), 3)
+    cr.rectangle(-12, -80, 24, 60)
+    fill_stroke(cr, shirt, 3)
+    if dance:
+        cr.move_to(-12, -75); cr.line_to(-45, -110)
+        cr.move_to(12, -75); cr.line_to(48, -60)
+        cr.move_to(-6, -20); cr.line_to(-30, 20)
+        cr.move_to(6, -20); cr.line_to(26, 22)
+    else:
+        cr.move_to(-12, -75); cr.line_to(-22, -30)
+        cr.move_to(12, -75); cr.line_to(22, -30)
+        cr.move_to(-6, -20); cr.line_to(-12, 22)
+        cr.move_to(6, -20); cr.line_to(12, 22)
+    stroke_black(cr, 4)
+    cr.restore()
+
+
+def socialroom(mode="profile"):
+    CYAN = (0.15, 0.80, 0.91)
+    WHITE = (0.99, 0.99, 0.99)
+
+    def make():
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(surf)
+        cr.set_source_rgb(*rgb("#F1E4D3"))
+        cr.paint()
+        cr.rectangle(0, 1560, W, H - 1560)
+        cr.set_source_rgb(*rgb("#8C6A4F"))
+        cr.fill()
+        cr.rectangle(0, 1545, W, 18)
+        cr.set_source_rgb(*rgb("#6E523C"))
+        cr.fill()
+        # Firmenlogo
+        _text(cr, "BEAN & CO.", 125, 610, 30, rgb("#6E3B1F"))
+        cr.arc(125, 525, 42, 0, 2 * math.pi)
+        fill_stroke(cr, rgb("#6E3B1F"), 5)
+        cr.save(); cr.translate(125, 525); cr.scale(16, 26)
+        cr.arc(0, 0, 1, 0, 2 * math.pi); cr.restore()
+        fill_stroke(cr, rgb("#C98A55"), 3)
+        # Ringlicht
+        cr.arc(1000, 960, 60, 0, 2 * math.pi)
+        cr.set_source_rgb(*rgb("#FFF6D8")); cr.set_line_width(22); cr.stroke()
+        cr.arc(1000, 960, 60, 0, 2 * math.pi)
+        cr.set_source_rgb(*BLACK); cr.set_line_width(3); cr.stroke()
+        cr.move_to(1000, 1020); cr.line_to(1000, 1560)
+        cr.move_to(1000, 1560); cr.line_to(955, 1560)
+        cr.move_to(1000, 1560); cr.line_to(1045, 1560)
+        stroke_black(cr, 7)
+        # Wand-Screen
+        sx, sy, sw, sh = 250, 440, 600, 470
+        rrect(cr, sx, sy, sw, sh, 16)
+        fill_stroke(cr, rgb("#15181F"), 8)
+        ix, iy, iw, ih = sx + 18, sy + 18, sw - 36, sh - 36
+        cr.save()
+        cr.rectangle(ix, iy, iw, ih)
+        cr.clip()
+        cr.set_source_rgb(*rgb("#101217"))
+        cr.paint()
+        if mode in ("profile", "flop", "back"):
+            # Profilkopf
+            cr.arc(ix + 70, iy + 70, 44, 0, 2 * math.pi)
+            fill_stroke(cr, rgb("#C98A55"), 4, rgb("#FF4F7B"))
+            _text(cr, "B&C", ix + 70, iy + 82, 26, (1, 1, 1))
+            _text(cr, "@beanandco", ix + 135, iy + 58, 30, (1, 1, 1), center=False)
+            fol = {"profile": "2.1M", "flop": "1.4M", "back": "2.6M"}[mode]
+            col = {"profile": (1, 1, 1), "flop": rgb("#FF5A5A"), "back": rgb("#5BEA8B")}[mode]
+            _text(cr, fol, ix + 135, iy + 102, 34, col, center=False)
+            _text(cr, "followers", ix + 135 + 15 + len(fol) * 20, iy + 102, 24, rgb("#9AA3B2"), bold=False, center=False)
+            if mode == "flop":
+                _text(cr, "-700K", ix + iw - 150, iy + 102, 30, rgb("#FF5A5A"), center=False)
+            if mode == "back":
+                _text(cr, "+500K", ix + iw - 160, iy + 102, 30, rgb("#5BEA8B"), center=False)
+            # Video-Kachel
+            vx, vy, vw, vh = ix + 30, iy + 140, 190, 260
+            rrect(cr, vx, vy, vw, vh, 12)
+            g = cairo.LinearGradient(0, vy, 0, vy + vh)
+            g.add_color_stop_rgb(0, *rgb("#FFB36B")); g.add_color_stop_rgb(1, *rgb("#FF5E8A"))
+            cr.set_source(g); cr.fill()
+            if mode == "profile":
+                _mini_stick(cr, vx + vw / 2, vy + vh - 40, 1.0, CYAN, dance=True)
+                likes, l2 = "1.2M", "48K comments"
+            elif mode == "flop":
+                _mini_stick(cr, vx + vw / 2, vy + vh - 40, 1.0, WHITE, dance=True)
+                likes, l2 = "12", "3.4K comments"
+            else:
+                _mini_stick(cr, vx + vw / 2 - 40, vy + vh - 40, 0.8, CYAN, dance=True)
+                _mini_stick(cr, vx + vw / 2 + 40, vy + vh - 40, 0.8, WHITE, dance=True)
+                likes, l2 = "3.9M", "210K comments"
+            _heart(cr, vx + 30, vy + 30, 14, rgb("#FF4F7B"))
+            _text(cr, likes, vx + 52, vy + 40, 26, (1, 1, 1), center=False)
+            # Kommentare
+            com = {
+                "profile": ["Best coffee account ever!", "Chloe never misses", "Ordering right now!"],
+                "flop": ["Who is this guy??", "WHERE IS CHLOE", "my grandpa dances better", "Unfollowed."],
+                "back": ["CHLOE IS BACK!!", "Rick's apology dance lol", "Best video they ever made"],
+            }[mode]
+            _text(cr, l2, ix + 250, iy + 170, 24, rgb("#9AA3B2"), bold=False, center=False)
+            for k, s in enumerate(com):
+                rrect(cr, ix + 245, iy + 190 + k * 58, iw - 270, 48, 12)
+                cr.set_source_rgb(*rgb("#232733")); cr.fill()
+                _text(cr, s, ix + 260, iy + 223 + k * 58, 22,
+                      rgb("#FF8A8A") if mode == "flop" else (1, 1, 1), bold=False, center=False)
+        elif mode == "chloe":
+            cr.arc(ix + 70, iy + 70, 44, 0, 2 * math.pi)
+            fill_stroke(cr, rgb("#25C9E6"), 4, rgb("#FF4F7B"))
+            _text(cr, "@chloe.creates", ix + 135, iy + 75, 32, (1, 1, 1), center=False)
+            vx, vy, vw, vh = ix + 30, iy + 135, iw - 60, 200
+            rrect(cr, vx, vy, vw, vh, 12)
+            g = cairo.LinearGradient(vx, 0, vx + vw, 0)
+            g.add_color_stop_rgb(0, *rgb("#5B8CFF")); g.add_color_stop_rgb(1, *rgb("#9A6BFF"))
+            cr.set_source(g); cr.fill()
+            _mini_stick(cr, vx + 90, vy + vh - 25, 1.1, CYAN)
+            _text(cr, "I got fired for making", vx + 175, vy + 85, 28, (1, 1, 1), center=False)
+            _text(cr, "my company go viral", vx + 175, vy + 125, 28, (1, 1, 1), center=False)
+            _text(cr, "5.2M views", ix + 40, iy + 385, 34, rgb("#5BEA8B"), center=False)
+            _heart(cr, ix + 330, iy + 373, 15, rgb("#FF4F7B"))
+            _text(cr, "980K", ix + 355, iy + 385, 30, (1, 1, 1), center=False)
+            _text(cr, "\"Boycott Bean & Co until Chloe is back\"", ix + iw / 2, iy + 425, 22, rgb("#FFB3B3"), bold=False)
+        cr.restore()
+        # Sofa / Tisch vorne
+        rrect(cr, 330, 1300, 420, 30, 8)
+        fill_stroke(cr, rgb("#C9A27A"), 5)
+        cr.rectangle(360, 1330, 360, 150)
+        fill_stroke(cr, rgb("#A9825C"), 5)
+        surf.flush()
+        return surf
+    return make
