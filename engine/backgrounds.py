@@ -1210,3 +1210,137 @@ def callcenter(mode="queue"):
         surf.flush()
         return surf
     return make
+
+
+# ---------------------------------------------------------------- Meetingraum mit Präsentation
+def meeting(mode="slides"):
+    def make():
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(surf)
+        cr.set_source_rgb(*rgb("#E9E4DC"))
+        cr.paint()
+        cr.rectangle(0, 1560, W, H - 1560)
+        cr.set_source_rgb(*rgb("#7C6A5A"))
+        cr.fill()
+        cr.rectangle(0, 1545, W, 18)
+        cr.set_source_rgb(*rgb("#5F5044"))
+        cr.fill()
+        # Fenster rechts
+        cr.rectangle(930, 600, 190, 600)
+        fill_stroke(cr, rgb("#BFE3F2"), 6)
+        cr.move_to(930, 900); cr.line_to(1120, 900)
+        stroke_black(cr, 4)
+        sx, sy, sw, sh = 110, 450, 780, 460
+        rrect(cr, sx, sy, sw, sh, 12)
+        fill_stroke(cr, rgb("#1B1F27"), 8)
+        ix, iy, iw, ih = sx + 20, sy + 20, sw - 40, sh - 40
+        cr.save()
+        cr.rectangle(ix, iy, iw, ih)
+        cr.clip()
+        cr.set_source_rgb(1, 1, 1)
+        cr.paint()
+        cr.rectangle(ix, iy, iw, 70)
+        cr.set_source_rgb(*rgb("#1F3B63"))
+        cr.fill()
+        if mode == "slides":
+            _text(cr, "MORGAN LOGISTICS  ·  Q1 PROPOSAL", ix + iw / 2, iy + 46, 30, (1, 1, 1))
+            _text(cr, "Projected savings:", ix + 50, iy + 140, 34, rgb("#1F3B63"), center=False)
+            _text(cr, "$ ???", ix + 360, iy + 140, 40, rgb("#E23B3B"), center=False)
+            _text(cr, "Delivery routes:", ix + 50, iy + 210, 34, rgb("#1F3B63"), center=False)
+            _text(cr, "TBD (ask Ava)", ix + 330, iy + 210, 34, rgb("#E23B3B"), center=False)
+            for k, h in enumerate((60, 110, 90, 150)):
+                cr.rectangle(ix + 70 + k * 120, iy + ih - 30 - h, 80, h)
+                fill_stroke(cr, rgb("#7BB6F0"), 3)
+            _text(cr, "Slide 2 of 31", ix + iw - 120, iy + ih - 30, 24, rgb("#9AA3B2"), bold=False)
+        elif mode == "signed":
+            _text(cr, "MORGAN LOGISTICS  ·  CONTRACT", ix + iw / 2, iy + 46, 30, (1, 1, 1))
+            cr.arc(ix + iw / 2, iy + 190, 75, 0, 2 * math.pi)
+            fill_stroke(cr, rgb("#33C46A"), 5)
+            cr.move_to(ix + iw / 2 - 38, iy + 190)
+            cr.line_to(ix + iw / 2 - 8, iy + 220)
+            cr.line_to(ix + iw / 2 + 42, iy + 160)
+            cr.set_source_rgb(1, 1, 1); cr.set_line_width(16); cr.set_line_cap(cairo.LINE_CAP_ROUND); cr.stroke()
+            _text(cr, "SIGNED  ·  3-year contract", ix + iw / 2, iy + 320, 38, rgb("#1F8A47"))
+            _text(cr, "Account lead: Ava Brooks", ix + iw / 2, iy + 370, 30, rgb("#1F3B63"), bold=False)
+        cr.restore()
+        # Tisch
+        rrect(cr, 120, 1270, 840, 46, 14)
+        fill_stroke(cr, rgb("#5B4636"), 6)
+        cr.rectangle(160, 1316, 760, 120)
+        fill_stroke(cr, rgb("#4A392C"), 5)
+        surf.flush()
+        return surf
+    return make
+
+
+# ---------------------------------------------------------------- Hochzeitsterrasse Italien
+def wedding():
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    cr = cairo.Context(surf)
+    g = cairo.LinearGradient(0, 0, 0, 1200)
+    g.add_color_stop_rgb(0, *rgb("#7EC8F2"))
+    g.add_color_stop_rgb(1, *rgb("#FDE7C2"))
+    cr.set_source(g)
+    cr.paint()
+    cr.arc(860, 560, 80, 0, 2 * math.pi)
+    cr.set_source_rgb(*rgb("#FFE58A"))
+    cr.fill()
+    # Meer + Küste
+    cr.rectangle(0, 1080, W, 200)
+    cr.set_source_rgb(*rgb("#2F8FD1"))
+    cr.fill()
+    cr.set_source_rgba(1, 1, 1, 0.5)
+    cr.set_line_width(4)
+    for y in (1110, 1150, 1200, 1240):
+        for x in range(30, W, 160):
+            cr.move_to(x + (y % 50), y); cr.line_to(x + 60 + (y % 50), y)
+    cr.stroke()
+    cr.move_to(0, 1090)
+    cr.curve_to(150, 940, 300, 980, 420, 1090)
+    cr.close_path()
+    fill_stroke(cr, rgb("#E9C58D"), 4)
+    for (hx, hw, hh, c) in ((40, 70, 80, "#F6B38A"), (110, 60, 110, "#FBE3A6"), (170, 80, 70, "#F59E8B"), (250, 60, 95, "#FFF3D6")):
+        cr.rectangle(hx, 1090 - hh, hw, hh)
+        fill_stroke(cr, rgb(c), 3)
+    # Terrasse
+    cr.rectangle(0, 1280, W, H - 1280)
+    cr.set_source_rgb(*rgb("#E8D3B0"))
+    cr.fill()
+    cr.set_source_rgba(0, 0, 0, 0.08)
+    cr.set_line_width(3)
+    for x in range(-300, W + 300, 110):
+        cr.move_to(x, 1280); cr.line_to(x + (x - 540) * 0.6, H)
+    cr.stroke()
+    # Balustrade
+    cr.rectangle(0, 1240, W, 26)
+    fill_stroke(cr, rgb("#F7F1E6"), 4)
+    for x in range(20, W, 70):
+        cr.rectangle(x, 1266, 26, 60)
+        fill_stroke(cr, rgb("#F7F1E6"), 3)
+    # Lichterkette
+    cr.move_to(0, 470)
+    cr.curve_to(300, 560, 700, 560, W, 470)
+    stroke_black(cr, 3)
+    for k in range(13):
+        tt = k / 12
+        x = (1 - tt) ** 3 * 0 + 3 * (1 - tt) ** 2 * tt * 300 + 3 * (1 - tt) * tt ** 2 * 700 + tt ** 3 * W
+        y = (1 - tt) ** 3 * 470 + 3 * (1 - tt) ** 2 * tt * 560 + 3 * (1 - tt) * tt ** 2 * 560 + tt ** 3 * 470
+        cr.arc(x, y + 14, 11, 0, 2 * math.pi)
+        fill_stroke(cr, rgb("#FFE58A"), 3)
+    # Blumenbogen
+    cr.arc(540, 1240, 330, math.pi, 2 * math.pi)
+    cr.set_source_rgb(*rgb("#FFFFFF")); cr.set_line_width(26); cr.stroke()
+    random.seed(4)
+    for k in range(26):
+        a = math.pi + math.pi * k / 25
+        cr.arc(540 + 330 * math.cos(a), 1240 + 330 * math.sin(a), random.uniform(14, 24), 0, 2 * math.pi)
+        cr.set_source_rgb(*rgb(random.choice(("#F7A1B5", "#FFFFFF", "#F9C9D4", "#B7E1A1"))))
+        cr.fill()
+    # Hochzeitstorte
+    for (w_, y_) in ((150, 1440), (110, 1380), (70, 1330)):
+        rrect(cr, 900 - w_ / 2, y_, w_, 60, 8)
+        fill_stroke(cr, (1, 1, 1), 4)
+    cr.rectangle(830, 1500, 140, 60)
+    fill_stroke(cr, rgb("#D9B48A"), 4)
+    surf.flush()
+    return surf

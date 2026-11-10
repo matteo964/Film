@@ -532,7 +532,8 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
         cr.set_source_rgb(*BLACK)
         cr.fill()
-    elif prop == "paper":
+    elif prop and prop.startswith("paper"):
+        label = prop.split(":", 1)[1] if ":" in prop else "100%"
         cr.save()
         cr.translate(hr[0] + 10, hr[1] - 20)
         cr.rotate(0.12)
@@ -549,8 +550,11 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.select_font_face("TikTok Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
         cr.set_font_size(30)
         cr.set_source_rgb(0.85, 0.1, 0.1)
-        cr.move_to(-36, -12)
-        cr.show_text("100%")
+        ext = cr.text_extents(label)
+        if cr.get_matrix().xx < 0:
+            cr.scale(-1, 1)
+        cr.move_to(-ext.width / 2 - ext.x_bearing, -12)
+        cr.show_text(label)
         cr.restore()
         cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
         cr.set_source_rgb(*BLACK)
