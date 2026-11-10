@@ -17,6 +17,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(__file__))
 import backgrounds as bgm  # noqa: E402
+render = sys.modules[__name__]
 from stickman import POSES, draw_figure, rrect  # noqa: E402
 
 W, H, FPS, SR = 1080, 1920, 30, 24000
@@ -280,6 +281,44 @@ def draw_hook(cr, lines):
         cr.show_text(s)
 
 
+def draw_caption(cr, text, frac):
+    """TikTok-Untertitel: Wortgruppen à ~3 Wörter, zeitlich nach Zeichenanteil verteilt."""
+    words = text.split()
+    chunks, cur = [], []
+    for w in words:
+        cur.append(w)
+        if len(cur) >= 3 or w[-1] in ".?!,":
+            chunks.append(" ".join(cur)); cur = []
+    if cur:
+        chunks.append(" ".join(cur))
+    total = sum(len(c) + 2 for c in chunks)
+    acc, idx = 0, len(chunks) - 1
+    for i, c in enumerate(chunks):
+        acc += len(c) + 2
+        if frac <= acc / total:
+            idx = i
+            break
+    s = chunks[idx].upper()
+    cr.select_font_face("TikTok Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    size = 84
+    cr.set_font_size(size)
+    e = cr.text_extents(s)
+    while e.x_advance > W - 120 and size > 40:
+        size -= 4
+        cr.set_font_size(size)
+        e = cr.text_extents(s)
+    x, y = (W - e.x_advance) / 2, 1450
+    cr.move_to(x, y)
+    cr.text_path(s)
+    cr.set_source_rgb(0.05, 0.05, 0.05)
+    cr.set_line_width(14)
+    cr.set_line_join(cairo.LINE_JOIN_ROUND)
+    cr.stroke_preserve()
+    cr.set_source_rgb(1, 0.85, 0.2) if any(ch.isdigit() for ch in s) else cr.set_source_rgb(1, 1, 1)
+    cr.fill()
+    cr.new_path()
+
+
 class CharState:
     def __init__(self, cid):
         self.cid = cid
@@ -383,6 +422,11 @@ def render(ep, out, preview=None, start=0.0):
             bg_cache[key] = ep.BG[key]()
         cr.set_source_surface(bg_cache[key], 0, 0)
         cr.paint()
+        if ev["shot"] != getattr(render, "_last_shot", None):
+            render._last_shot = ev["shot"]
+            render._shot_start = ev["start"]
+        bgm.CLOCK["lt"] = t - render._shot_start
+        bgm.CLOCK["t"] = t
         for fn in shot.get("overlays", []):
             fn(cr, t)
 
@@ -416,7 +460,12 @@ def render(ep, out, preview=None, start=0.0):
             draw_figure(cr, opts.get("look", ep.CHARS[cid]["look"]), x, y, sc, fc, st, t,
                         hide_legs=opts.get("hide_legs", False), shiver=opts.get("shiver", 0.0),
                         sit=opts.get("sit", False))
+        for fn in shot.get("front", []):
+            fn(cr, t)
         cr.restore()
+
+        if getattr(ep, "CAPTIONS", False) and ev["kind"] == "line" and t <= ev["end"]:
+            draw_caption(cr, it["t"], (t - ev["start"]) / max(0.01, ev["end"] - ev["start"]))
 
         if ep.HOOK and (ep.HOOK_UNTIL is None or t < ep.HOOK_UNTIL):
             draw_hook(cr, ep.HOOK)

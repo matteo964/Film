@@ -5,6 +5,7 @@ import cairo
 from stickman import rrect, stroke_black, BLACK
 
 W, H = 1080, 1920
+CLOCK = {"lt": 0.0, "t": 0.0}  # von render.py pro Frame gesetzt (lt = Zeit seit Shot-Beginn)
 
 
 def rgb(h):
