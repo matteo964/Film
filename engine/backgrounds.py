@@ -1127,3 +1127,86 @@ def socialroom(mode="profile"):
         surf.flush()
         return surf
     return make
+
+
+# ---------------------------------------------------------------- Callcenter mit Wand-Screen
+def callcenter(mode="queue"):
+    def make():
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(surf)
+        cr.set_source_rgb(*rgb("#DDE7EF"))
+        cr.paint()
+        cr.rectangle(0, 1560, W, H - 1560)
+        cr.set_source_rgb(*rgb("#5E6E80"))
+        cr.fill()
+        cr.set_source_rgba(0, 0, 0, 0.10)
+        cr.set_line_width(3)
+        for x in range(-300, W + 300, 120):
+            cr.move_to(x, 1560); cr.line_to(x + (x - 540) * 0.5, H)
+        cr.stroke()
+        cr.rectangle(0, 1545, W, 18)
+        cr.set_source_rgb(*rgb("#4A586A"))
+        cr.fill()
+        _text(cr, "CUSTOMER CARE", 540, 445, 34, rgb("#2C4A6E"))
+        sx, sy, sw, sh = 160, 470, 760, 430
+        rrect(cr, sx, sy, sw, sh, 14)
+        fill_stroke(cr, rgb("#151922"), 8)
+        ix, iy, iw, ih = sx + 20, sy + 20, sw - 40, sh - 40
+        cr.save()
+        cr.rectangle(ix, iy, iw, ih)
+        cr.clip()
+        cr.set_source_rgb(*rgb("#0F1320"))
+        cr.paint()
+        if mode == "queue":
+            _text(cr, "LIVE QUEUE", ix + iw / 2, iy + 60, 36, rgb("#7FB2FF"))
+            stats = [("CALLS WAITING", "12", "#FFD45C"), ("AVG HOLD", "4:32", "#FFFFFF"), ("TOP AGENT", "MAYA  98%", "#5BEA8B")]
+            for k, (a, b, c) in enumerate(stats):
+                y = iy + 140 + k * 85
+                rrect(cr, ix + 40, y - 45, iw - 80, 70, 12)
+                cr.set_source_rgb(*rgb("#1C2233")); cr.fill()
+                _text(cr, a, ix + 70, y, 30, rgb("#9AA3B2"), center=False)
+                _text(cr, b, ix + iw - 70 - len(b) * 19, y, 34, rgb(c), center=False)
+        elif mode == "recording":
+            cr.arc(ix + 50, iy + 50, 14, 0, 2 * math.pi)
+            cr.set_source_rgb(*rgb("#FF3B3B")); cr.fill()
+            _text(cr, "CALL #4471  ·  09:42 AM  ·  RECORDED", ix + 80, iy + 62, 28, (1, 1, 1), center=False)
+            random.seed(9)
+            for k in range(70):
+                x = ix + 40 + k * 9.4
+                h = (abs(math.sin(k * 0.45)) * 70 + random.uniform(5, 60)) * (1.6 if 18 < k < 44 else 0.8)
+                cr.rectangle(x, iy + 200 - h / 2, 6, h)
+                cr.set_source_rgb(*(rgb("#FF6B6B") if 18 < k < 44 else rgb("#5BEA8B")))
+                cr.fill()
+            _text(cr, "Customer", ix + 260, iy + 330, 26, rgb("#FF6B6B"), center=False)
+            _text(cr, "Agent", ix + 40, iy + 330, 26, rgb("#5BEA8B"), center=False)
+            cr.rectangle(ix + 40, iy + 352, iw - 80, 8)
+            cr.set_source_rgb(*rgb("#2A3145")); cr.fill()
+            cr.rectangle(ix + 40, iy + 352, (iw - 80) * 0.45, 8)
+            cr.set_source_rgb(*rgb("#7FB2FF")); cr.fill()
+        elif mode == "report":
+            _text(cr, "QUALITY ASSURANCE · MYSTERY SHOPPER REPORT", ix + iw / 2, iy + 50, 24, rgb("#FFD45C"))
+            rows = [("Agent Maya: calm & professional", True), ("Agent Maya: followed policy", True),
+                    ("Manager listened to recording", False), ("Manager gave away $1,200", False),
+                    ("Manager threatened to fire agent", False)]
+            for k, (s, ok) in enumerate(rows):
+                y = iy + 115 + k * 58
+                cr.arc(ix + 60, y - 9, 18, 0, 2 * math.pi)
+                cr.set_source_rgb(*(rgb("#33C46A") if ok else rgb("#E23B3B"))); cr.fill()
+                _text(cr, "✓" if ok else "x", ix + 60, y + 1, 26, (1, 1, 1), font="DejaVu Sans")
+                _text(cr, s, ix + 95, y, 28, (1, 1, 1), bold=False, center=False)
+        cr.restore()
+        # Arbeitsplätze hinten
+        for dx in (40, 380, 720):
+            rrect(cr, dx + 90, 1150, 140, 100, 8)
+            fill_stroke(cr, rgb("#2E3440"), 4)
+            cr.rectangle(dx + 150, 1250, 20, 30)
+            fill_stroke(cr, rgb("#2E3440"), 3)
+            cr.move_to(dx + 30, 1280); cr.line_to(dx + 30, 1110); cr.line_to(dx + 300, 1110); cr.line_to(dx + 300, 1280)
+            cr.set_source_rgb(*rgb("#A9B8C8")); cr.set_line_width(10); cr.stroke()
+        cr.rectangle(20, 1280, 1040, 26)
+        fill_stroke(cr, rgb("#E4E9EE"), 5)
+        cr.rectangle(40, 1306, 1000, 140)
+        fill_stroke(cr, rgb("#C3CCD5"), 5)
+        surf.flush()
+        return surf
+    return make

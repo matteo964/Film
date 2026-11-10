@@ -168,6 +168,16 @@ def voice_line(c, text, emotion):
     return best[1]
 
 
+def phone_fx(a):
+    """Telefon-Klang: Bandpass 300–3400 Hz, leichte Sättigung."""
+    f = np.fft.rfft(a)
+    fr = np.fft.rfftfreq(len(a), 1 / SR)
+    f[(fr < 320) | (fr > 3400)] = 0
+    b = np.fft.irfft(f, len(a)).astype(np.float32)
+    b = np.tanh(b * 2.2) / 2.2
+    return trim_norm(b) * 0.9
+
+
 def envelope(a):
     hop = SR // FPS
     n = int(math.ceil(len(a) / hop))
@@ -227,6 +237,8 @@ def build(ep):
             continue
         c = ep.CHARS[item["s"]]
         a = voice_line(c, item.get("say", item["t"]), item.get("tone", emo.get(item["s"], "neutral")))
+        if item.get("fx") == "phone":
+            a = phone_fx(a)
         dur = len(a) / SR
         events.append(dict(kind="line", shot=shot, start=t, end=t + dur, audio=a, env=envelope(a), item=item))
         t += dur + item.get("gap", ep.GAP)

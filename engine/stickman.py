@@ -105,7 +105,7 @@ class Look:
     """Aussehen einer Figur."""
 
     def __init__(self, shirt=(0.15, 0.80, 0.91), tie=False, bun=False, cap=False,
-                 belt=False, lashes=False, ponytail=False, glasses=False, moustache=False, scarf=False, collar=False,
+                 belt=False, lashes=False, ponytail=False, glasses=False, headset=False, moustache=False, scarf=False, collar=False,
                  hair_color=(0.35, 0.22, 0.14)):
         self.shirt = shirt
         self.tie = tie
@@ -114,6 +114,7 @@ class Look:
         self.belt = belt
         self.ponytail = ponytail
         self.glasses = glasses
+        self.headset = headset
         self.lashes = lashes
         self.moustache = moustache
         self.scarf = scarf
@@ -404,6 +405,20 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.move_to(ecx - 55, ey - 10)
         cr.line_to(ecx - 90, ey - 18)
         stroke_black(cr, 5)
+
+    if look.headset:
+        cr.arc(hx0, head_cy, 104, math.pi * 1.08, math.pi * 1.92)
+        stroke_black(cr, 9)
+        rrect(cr, -112, head_cy - 30, 30, 56, 10)
+        cr.set_source_rgb(0.2, 0.22, 0.28)
+        cr.fill_preserve()
+        stroke_black(cr, 4)
+        cr.move_to(-96, head_cy + 20)
+        cr.curve_to(-80, head_cy + 75, -10, head_cy + 80, ecx - 26, head_cy + 58)
+        stroke_black(cr, 5)
+        cr.arc(ecx - 22, head_cy + 57, 8, 0, 2 * math.pi)
+        cr.set_source_rgb(0.2, 0.22, 0.28)
+        cr.fill()
 
     if look.moustache:
         mx, my = ecx + 2, head_cy + 30
