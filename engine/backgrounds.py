@@ -1345,3 +1345,106 @@ def wedding():
     fill_stroke(cr, rgb("#D9B48A"), 4)
     surf.flush()
     return surf
+
+
+# ---------------------------------------------------------------- Restaurant mit Wand-TV (Kamera / Livestream)
+def restaurant(mode="menu"):
+    def make():
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(surf)
+        cr.set_source_rgb(*rgb("#F3E3C7"))
+        cr.paint()
+        # Holzvertäfelung unten
+        cr.rectangle(0, 1180, W, 380)
+        cr.set_source_rgb(*rgb("#9C6B43"))
+        cr.fill()
+        for x in range(0, W, 90):
+            cr.move_to(x, 1180); cr.line_to(x, 1560)
+        cr.set_source_rgba(0, 0, 0, 0.15); cr.set_line_width(3); cr.stroke()
+        cr.rectangle(0, 1170, W, 16)
+        cr.set_source_rgb(*rgb("#7A5233")); cr.fill()
+        # Boden (Schachbrett)
+        for i in range(0, 12):
+            for j in range(0, 5):
+                cr.rectangle(i * 90, 1560 + j * 90, 90, 90)
+                cr.set_source_rgb(*(rgb("#2B2B2B") if (i + j) % 2 else rgb("#EDEDED")))
+                cr.fill()
+        # Lampen
+        for lx in (180, 900):
+            cr.move_to(lx, 0); cr.line_to(lx, 470)
+            stroke_black(cr, 3)
+            cr.move_to(lx - 60, 520); cr.line_to(lx - 30, 470); cr.line_to(lx + 30, 470); cr.line_to(lx + 60, 520)
+            cr.close_path(); fill_stroke(cr, rgb("#2E5E4E"), 4)
+            gl = cairo.RadialGradient(lx, 530, 5, lx, 530, 260)
+            gl.add_color_stop_rgba(0, 1, 0.9, 0.6, 0.35); gl.add_color_stop_rgba(1, 1, 0.9, 0.6, 0)
+            cr.set_source(gl); cr.paint()
+        # Schild
+        _text(cr, "ROSA'S DINER", 540, 455, 44, rgb("#B3261E"))
+        # TV
+        sx, sy, sw, sh = 250, 490, 580, 400
+        rrect(cr, sx, sy, sw, sh, 14)
+        fill_stroke(cr, rgb("#15181F"), 8)
+        ix, iy, iw, ih = sx + 18, sy + 18, sw - 36, sh - 36
+        cr.save(); cr.rectangle(ix, iy, iw, ih); cr.clip()
+        if mode == "menu":
+            cr.set_source_rgb(*rgb("#1E3B2F")); cr.paint()
+            _text(cr, "TODAY'S SPECIALS", ix + iw / 2, iy + 60, 38, rgb("#FFD45C"))
+            for k, (a, b) in enumerate((("Lobster Pasta", "$38"), ("Wagyu Burger", "$29"), ("Truffle Fries", "$14"),
+                                        ("Tiramisu", "$9"))):
+                _text(cr, a, ix + 60, iy + 140 + k * 60, 32, (1, 1, 1), bold=False, center=False)
+                _text(cr, b, ix + iw - 120, iy + 140 + k * 60, 32, rgb("#FFD45C"), center=False)
+        elif mode in ("cctv", "cctv2"):
+            cr.set_source_rgb(*rgb("#3A4A3F")); cr.paint()
+            # Tisch-Szene von oben/vorne in Graustufen-Grün
+            rrect(cr, ix + 160, iy + 230, 220, 40, 8)
+            cr.set_source_rgb(*rgb("#6F7F72")); cr.fill()
+            cr.arc(ix + 270, iy + 225, 34, 0, 2 * math.pi)
+            cr.set_source_rgb(*rgb("#DADADA")); cr.fill()
+            # Mini-Figur
+            hx, hy = ix + 400, iy + 140
+            cr.arc(hx, hy, 38, 0, 2 * math.pi); cr.set_source_rgb(*rgb("#CFCFCF")); cr.fill()
+            cr.rectangle(hx - 16, hy + 38, 32, 90); cr.set_source_rgb(*rgb("#9A8FA0")); cr.fill()
+            cr.set_source_rgb(*rgb("#111111")); cr.set_line_width(7)
+            if mode == "cctv":
+                cr.move_to(hx - 14, hy + 50); cr.line_to(hx - 40, hy - 10); cr.line_to(hx - 20, hy - 34)
+            else:
+                cr.move_to(hx - 14, hy + 50); cr.line_to(hx - 80, hy + 80); cr.line_to(hx - 120, hy + 80)
+            cr.stroke()
+            # Haar
+            cr.set_source_rgb(*rgb("#111111")); cr.set_line_width(3)
+            if mode == "cctv":
+                cr.move_to(hx - 22, hy - 34); cr.curve_to(hx - 10, hy - 50, hx + 5, hy - 40, hx + 10, hy - 30)
+            else:
+                cr.move_to(hx - 125, hy + 78); cr.curve_to(hx - 140, hy + 70, hx - 150, hy + 85, hx - 160, hy + 80)
+            cr.stroke()
+            cr.arc(ix + 30, iy + 30, 10, 0, 2 * math.pi); cr.set_source_rgb(*rgb("#FF3B3B")); cr.fill()
+            _text(cr, "REC  CAM 3 · TABLE 6", ix + 50, iy + 40, 26, (1, 1, 1), font="DejaVu Sans Mono", center=False)
+            _text(cr, "12:41:07" if mode == "cctv" else "12:41:09", ix + iw - 150, iy + 40, 26, (1, 1, 1),
+                  font="DejaVu Sans Mono", center=False)
+            if mode == "cctv2":
+                cr.arc(hx - 140, hy + 80, 45, 0, 2 * math.pi)
+                cr.set_source_rgb(*rgb("#FF3B3B")); cr.set_line_width(5); cr.stroke()
+            # Scanlines
+            cr.set_source_rgba(0, 0, 0, 0.15)
+            for y in range(int(iy), int(iy + ih), 6):
+                cr.rectangle(ix, y, iw, 2); cr.fill()
+        elif mode == "viral":
+            cr.set_source_rgb(*rgb("#101217")); cr.paint()
+            _text(cr, "@rosasdiner", ix + 40, iy + 60, 32, (1, 1, 1), center=False)
+            rrect(cr, ix + 40, iy + 90, iw - 80, 150, 12)
+            cr.set_source_rgb(*rgb("#3A4A3F")); cr.fill()
+            _text(cr, "Influencer caught on camera", ix + iw / 2, iy + 155, 32, (1, 1, 1))
+            _text(cr, "planting a hair in her food", ix + iw / 2, iy + 200, 32, (1, 1, 1))
+            _text(cr, "12.4M views", ix + 40, iy + 300, 40, rgb("#5BEA8B"), center=False)
+            _text(cr, "\"Booked out for 3 months!\"", ix + iw / 2, iy + 345, 28, rgb("#FFD45C"), bold=False)
+        cr.restore()
+        # Tisch vorne
+        rrect(cr, 300, 1300, 480, 30, 8)
+        fill_stroke(cr, rgb("#F2F2F2"), 5)
+        cr.rectangle(320, 1330, 440, 10)
+        cr.set_source_rgb(*rgb("#D9442B")); cr.fill()
+        cr.move_to(540, 1340); cr.line_to(540, 1560); stroke_black(cr, 10)
+        cr.arc(470, 1288, 34, math.pi, 2 * math.pi); fill_stroke(cr, (1, 1, 1), 4)
+        surf.flush()
+        return surf
+    return make

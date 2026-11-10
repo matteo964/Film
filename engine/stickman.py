@@ -105,7 +105,7 @@ class Look:
     """Aussehen einer Figur."""
 
     def __init__(self, shirt=(0.15, 0.80, 0.91), tie=False, bun=False, cap=False,
-                 belt=False, lashes=False, ponytail=False, glasses=False, headset=False, moustache=False, scarf=False, collar=False,
+                 belt=False, lashes=False, ponytail=False, glasses=False, headset=False, apron=False, police=False, moustache=False, scarf=False, collar=False,
                  hair_color=(0.35, 0.22, 0.14)):
         self.shirt = shirt
         self.tie = tie
@@ -115,6 +115,8 @@ class Look:
         self.ponytail = ponytail
         self.glasses = glasses
         self.headset = headset
+        self.apron = apron
+        self.police = police
         self.lashes = lashes
         self.moustache = moustache
         self.scarf = scarf
@@ -296,6 +298,27 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.move_to(30, sh_y - 4)
         cr.line_to(6, sh_y + 34)
         stroke_black(cr, 4)
+    if look.apron:
+        cr.move_to(-30, sh_y + 90)
+        cr.line_to(30, sh_y + 90)
+        cr.line_to(34, hip_y + 60)
+        cr.line_to(-34, hip_y + 60)
+        cr.close_path()
+        cr.set_source_rgb(1, 1, 1)
+        cr.fill_preserve()
+        stroke_black(cr, 4)
+        cr.rectangle(-14, sh_y + 130, 28, 22)
+        stroke_black(cr, 3)
+    if look.police:
+        cr.move_to(-20, sh_y + 40)
+        cr.line_to(-8, sh_y + 30)
+        cr.line_to(4, sh_y + 40)
+        cr.line_to(-2, sh_y + 60)
+        cr.line_to(-14, sh_y + 60)
+        cr.close_path()
+        cr.set_source_rgb(0.95, 0.78, 0.25)
+        cr.fill_preserve()
+        stroke_black(cr, 3)
     if look.belt:
         cr.rectangle(-34, hip_y - 14, 68, 20)
         cr.set_source_rgb(0.45, 0.28, 0.12)
@@ -337,6 +360,23 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.curve_to(-140, head_cy - 30, -150, head_cy - 5, -120, head_cy)
         cr.line_to(-85, head_cy - 8)
         cr.close_path()
+        cr.fill()
+
+    if look.police:
+        cr.move_to(-96, head_cy - 40)
+        cr.curve_to(-90, head_cy - 120, 90, head_cy - 120, 96, head_cy - 40)
+        cr.close_path()
+        cr.set_source_rgb(0.12, 0.17, 0.32)
+        cr.fill_preserve()
+        stroke_black(cr, 5)
+        cr.move_to(-20, head_cy - 45)
+        cr.curve_to(40, head_cy - 30, 110, head_cy - 34, 128, head_cy - 22)
+        cr.line_to(96, head_cy - 40)
+        cr.close_path()
+        cr.set_source_rgb(0.05, 0.05, 0.08)
+        cr.fill()
+        cr.arc(10, head_cy - 78, 12, 0, 2 * math.pi)
+        cr.set_source_rgb(0.95, 0.78, 0.25)
         cr.fill()
 
     # Gesicht
