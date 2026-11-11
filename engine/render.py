@@ -319,6 +319,45 @@ def draw_caption(cr, text, frac):
     cr.new_path()
 
 
+def draw_caption_hl(cr, text, frac):
+    """Untertitel wie in der Referenz: 3er-Gruppen, aktuelles Wort rot hinterlegt (Bebas Neue)."""
+    words = text.replace("...", "").split()
+    if not words:
+        return
+    lens = [len(w) + 1 for w in words]
+    tot = sum(lens)
+    acc, wi = 0, len(words) - 1
+    for i, l in enumerate(lens):
+        acc += l
+        if frac <= acc / tot:
+            wi = i
+            break
+    start = (wi // 3) * 3
+    chunk = [w.upper().strip(",.?!") for w in words[start:start + 3]]
+    cr.select_font_face("Bebas Neue", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+    size = 74
+    cr.set_font_size(size)
+    space = cr.text_extents(" ").x_advance + 6
+    widths = [cr.text_extents(w).x_advance for w in chunk]
+    total = sum(widths) + space * (len(chunk) - 1)
+    x = (W - total) / 2
+    y = 1360
+    for i, w in enumerate(chunk):
+        if start + i == wi:
+            rrect(cr, x - 10, y - size * 0.82, widths[i] + 20, size * 0.98, 10)
+            cr.set_source_rgb(0.86, 0.12, 0.26)
+            cr.fill()
+        cr.move_to(x, y)
+        cr.text_path(w)
+        cr.set_source_rgb(0.04, 0.04, 0.05)
+        cr.set_line_width(10)
+        cr.set_line_join(cairo.LINE_JOIN_ROUND)
+        cr.stroke_preserve()
+        cr.set_source_rgb(1, 1, 1)
+        cr.fill()
+        x += widths[i] + space
+
+
 class CharState:
     def __init__(self, cid):
         self.cid = cid
@@ -469,7 +508,11 @@ def render(ep, out, preview=None, start=0.0):
         cr.restore()
 
         if getattr(ep, "CAPTIONS", False) and ev["kind"] == "line" and t <= ev["end"]:
-            draw_caption(cr, it["t"], (t - ev["start"]) / max(0.01, ev["end"] - ev["start"]))
+            frac = (t - ev["start"]) / max(0.01, ev["end"] - ev["start"])
+            if getattr(ep, "CAPTION_STYLE", "") == "highlight":
+                draw_caption_hl(cr, it["t"], frac)
+            else:
+                draw_caption(cr, it["t"], frac)
 
         if ep.HOOK and (ep.HOOK_UNTIL is None or t < ep.HOOK_UNTIL):
             draw_hook(cr, ep.HOOK)

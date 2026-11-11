@@ -107,7 +107,16 @@ class Look:
 
     def __init__(self, shirt=(0.15, 0.80, 0.91), tie=False, bun=False, cap=False,
                  belt=False, lashes=False, ponytail=False, glasses=False, headset=False, apron=False, police=False, moustache=False, scarf=False, collar=False,
-                 hair_color=(0.35, 0.22, 0.14)):
+                 hair_color=(0.35, 0.22, 0.14), **extra):
+        self.skin = None        # Hautfarbe (Stil v2), None = klassisch weiß
+        self.iris = None        # Irisfarbe
+        self.hair = None        # "sidepart" | "spiky" | "long" | "bob"
+        self.outfit = None      # "suit" | "blouse"
+        self.tie_color = (0.12, 0.13, 0.2)
+        self.shirt_inner = (0.98, 0.98, 0.98)
+        self.shoes = False
+        for k, v in extra.items():
+            setattr(self, k, v)
         self.shirt = shirt
         self.tie = tie
         self.bun = bun
@@ -173,7 +182,7 @@ def draw_phone(cr, hx, hy):
     cr.translate(hx, hy)
     cr.rotate(-0.3)
     rrect(cr, -12, -34, 24, 52, 5)
-    cr.set_source_rgb(0.15, 0.35, 0.7)
+    cr.set_source_rgb(0.98, 0.52, 0.18)
     cr.fill_preserve()
     cr.set_source_rgb(*BLACK)
     cr.set_line_width(3)
@@ -235,6 +244,10 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
     sh_y = -672 + bob
     head_cy = -770 + bob
 
+    if look.shoes and not sit and not hide_legs:
+        cr.save(); cr.translate(10, 0); cr.scale(120, 18); cr.arc(0, 0, 1, 0, 2 * math.pi); cr.restore()
+        cr.set_source_rgba(0, 0, 0, 0.16); cr.fill()
+
     # Beine
     if sit:
         for side in (-1, 1):
@@ -264,6 +277,9 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
             cr.line_to(fx, -8)
             cr.line_to(fx + 34, -4)
             stroke_black(cr, 12)
+            if look.shoes:
+                cr.save(); cr.translate(fx + 16, -10); cr.scale(30, 15); cr.arc(0, 0, 1, 0, 2 * math.pi); cr.restore()
+                cr.set_source_rgb(0.06, 0.06, 0.07); cr.fill()
 
     # Hinterer Arm (links)
     hands = st["hands"]
@@ -288,6 +304,26 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.fill_preserve()
         stroke_black(cr, 6)
 
+    hc = head_cy
+    if look.hair in ("long", "bob"):
+        cr.save()
+        if look.hair == "long":
+            cr.move_to(-104, hc - 30)
+            cr.curve_to(-140, hc + 60, -120, hc + 190, -50, hc + 205)
+            cr.curve_to(10, hc + 215, 70, hc + 200, 96, hc + 160)
+            cr.curve_to(110, hc + 80, 108, hc + 10, 96, hc - 30)
+            cr.close_path()
+        else:
+            cr.move_to(-106, hc - 20)
+            cr.curve_to(-122, hc + 60, -100, hc + 110, -40, hc + 112)
+            cr.line_to(90, hc + 100)
+            cr.curve_to(112, hc + 60, 112, hc + 10, 100, hc - 20)
+            cr.close_path()
+        cr.set_source_rgb(*[c * 0.85 for c in look.hair_color])
+        cr.fill_preserve()
+        stroke_black(cr, 5)
+        cr.restore()
+
     # Torso
     cr.move_to(-34, sh_y - 8)
     cr.curve_to(-38, sh_y + 80, -36, hip_y - 60, -32, hip_y + 18)
@@ -297,7 +333,22 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
     cr.set_source_rgb(*look.shirt)
     cr.fill_preserve()
     stroke_black(cr, 6)
-    if look.tie:
+    if look.outfit in ("suit", "blouse"):
+        # helles Hemd / Top im V-Ausschnitt
+        cr.move_to(-20, sh_y - 6); cr.line_to(0, sh_y + (150 if look.outfit == "suit" else 70)); cr.line_to(20, sh_y - 6)
+        cr.close_path(); cr.set_source_rgb(*look.shirt_inner); cr.fill()
+        if look.outfit == "suit":
+            cr.move_to(0, sh_y - 4); cr.line_to(-8, sh_y + 16); cr.line_to(-5, sh_y + 120); cr.line_to(0, sh_y + 138)
+            cr.line_to(5, sh_y + 120); cr.line_to(8, sh_y + 16); cr.close_path()
+            cr.set_source_rgb(*look.tie_color); cr.fill()
+        # Revers
+        cr.move_to(-30, sh_y - 6); cr.line_to(-4, sh_y + (150 if look.outfit == "suit" else 70))
+        cr.move_to(30, sh_y - 6); cr.line_to(4, sh_y + (150 if look.outfit == "suit" else 70))
+        stroke_black(cr, 4)
+        if look.outfit == "suit":
+            for yy in (sh_y + 175, sh_y + 205):
+                cr.arc(-2, yy, 4, 0, 2 * math.pi); cr.set_source_rgb(0.1, 0.1, 0.1); cr.fill()
+    if look.tie and look.outfit is None:
         cr.move_to(0, sh_y - 6)
         cr.line_to(-10, sh_y + 20)
         cr.line_to(-6, sh_y + 140)
@@ -347,8 +398,13 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
     # Kopf
     hx0 = 0
     g = cairo.RadialGradient(hx0 + 25, head_cy - 30, 10, hx0, head_cy, 98)
-    g.add_color_stop_rgb(0, 1, 1, 1)
-    g.add_color_stop_rgb(1, 0.88, 0.88, 0.89)
+    if look.skin:
+        sk = look.skin
+        g.add_color_stop_rgb(0, min(1, sk[0] * 1.05), min(1, sk[1] * 1.05), min(1, sk[2] * 1.05))
+        g.add_color_stop_rgb(1, sk[0] * 0.9, sk[1] * 0.88, sk[2] * 0.85)
+    else:
+        g.add_color_stop_rgb(0, 1, 1, 1)
+        g.add_color_stop_rgb(1, 0.88, 0.88, 0.89)
     cr.arc(hx0, head_cy, 96, 0, 2 * math.pi)
     cr.set_source(g)
     cr.fill_preserve()
@@ -394,6 +450,51 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.set_source_rgb(0.95, 0.78, 0.25)
         cr.fill()
 
+    if look.hair:
+        hcol = look.hair_color
+        if look.hair == "sidepart":
+            cr.move_to(-98, hc + 14)
+            cr.curve_to(-114, hc - 80, -40, hc - 126, 30, hc - 113)
+            cr.curve_to(84, hc - 104, 106, hc - 70, 99, hc - 34)
+            cr.curve_to(74, hc - 62, 26, hc - 70, -6, hc - 60)
+            cr.curve_to(-48, hc - 52, -80, hc - 22, -84, hc + 18)
+            cr.close_path()
+        elif look.hair == "spiky":
+            pts = []
+            for k in range(11):
+                a = math.pi * (1.02 + 0.96 * k / 10)
+                r = 96 + (10, 34, 14, 46, 12, 42, 18, 48, 14, 30, 8)[k]
+                a += 0.06 * (k % 2)
+                pts.append((r * math.cos(a), hc + r * math.sin(a)))
+            cr.move_to(-96, hc + 6)
+            for (px_, py_) in pts:
+                cr.line_to(px_, py_)
+            cr.line_to(97, hc - 30)
+            cr.curve_to(60, hc - 60, 0, hc - 66, -60, hc - 40)
+            cr.close_path()
+        elif look.hair == "long":
+            cr.move_to(-102, hc + 30)
+            cr.curve_to(-112, hc - 90, -20, hc - 130, 50, hc - 108)
+            cr.curve_to(104, hc - 90, 116, hc - 20, 104, hc + 60)
+            cr.curve_to(94, hc + 0, 84, hc - 46, 46, hc - 64)
+            cr.curve_to(6, hc - 74, -44, hc - 58, -72, hc - 16)
+            cr.close_path()
+        elif look.hair == "bob":
+            cr.move_to(-106, hc + 40)
+            cr.curve_to(-114, hc - 92, 0, hc - 132, 70, hc - 104)
+            cr.curve_to(110, hc - 82, 114, hc - 20, 106, hc + 40)
+            cr.line_to(96, hc + 40)
+            cr.curve_to(96, hc - 8, 92, hc - 40, 82, hc - 54)
+            cr.line_to(-36, hc - 58)
+            cr.curve_to(-70, hc - 50, -90, hc - 10, -92, hc + 40)
+            cr.close_path()
+        cr.set_source_rgb(*hcol)
+        cr.fill_preserve()
+        stroke_black(cr, 5)
+        # Glanzlinien
+        cr.move_to(-40, hc - 98); cr.curve_to(-10, hc - 108, 20, hc - 106, 40, hc - 96)
+        cr.set_source_rgba(1, 1, 1, 0.25); cr.set_line_width(6); cr.stroke()
+
     # Gesicht
     lookv = st.get("look", (1.0, 0.0))
     ecx = hx0 + 22
@@ -416,14 +517,26 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         px = cx + lookv[0] * (rx - 11)
         py = ey + lookv[1] * (ry - 12) + 4
         cr.new_path()
-        cr.arc(px, py, e["pupil"], 0, 2 * math.pi)
-        cr.set_source_rgb(*BLACK)
-        cr.fill()
+        if look.iris:
+            cr.arc(px, py, 14, 0, 2 * math.pi)
+            cr.set_source_rgb(*look.iris)
+            cr.fill_preserve()
+            cr.set_source_rgb(*[c * 0.6 for c in look.iris]); cr.set_line_width(2.5); cr.stroke()
+            cr.arc(px, py, max(5, e["pupil"] - 2), 0, 2 * math.pi)
+            cr.set_source_rgb(*BLACK)
+            cr.fill()
+            cr.arc(px + 4, py - 5, 3.5, 0, 2 * math.pi)
+            cr.set_source_rgb(1, 1, 1)
+            cr.fill()
+        else:
+            cr.arc(px, py, e["pupil"], 0, 2 * math.pi)
+            cr.set_source_rgb(*BLACK)
+            cr.fill()
         # Lid
         if lid > 0.02:
             ly = ey - ry + 2 * ry * lid
             cr.rectangle(cx - rx - 2, ey - ry - 2, 2 * rx + 4, ly - (ey - ry) + 2)
-            cr.set_source_rgb(0.92, 0.92, 0.93)
+            cr.set_source_rgb(*(look.skin if look.skin else (0.92, 0.92, 0.93)))
             cr.fill()
             cr.move_to(cx - rx, ly)
             cr.line_to(cx + rx, ly)
@@ -448,7 +561,11 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         by = ey - ry - 14 - e["bh"]
         cr.move_to(cx - 16, by - tilt * 14)
         cr.line_to(cx + 16, by + tilt * 14)
-        stroke_black(cr, 6)
+        if look.skin:
+            cr.set_source_rgb(*[c * 0.55 for c in look.hair_color]); cr.set_line_width(8)
+            cr.set_line_cap(cairo.LINE_CAP_ROUND); cr.stroke()
+        else:
+            stroke_black(cr, 6)
 
     if look.glasses:
         for dx in (-25, 25):
