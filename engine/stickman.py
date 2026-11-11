@@ -333,6 +333,14 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
     cr.set_source_rgb(*look.shirt)
     cr.fill_preserve()
     stroke_black(cr, 6)
+    if look.outfit == "hoodie":
+        cr.move_to(-36, sh_y - 4); cr.curve_to(-30, sh_y + 30, 30, sh_y + 30, 36, sh_y - 4)
+        cr.set_source_rgb(*[c * 0.8 for c in look.shirt]); cr.set_line_width(16); cr.stroke()
+        for dx in (-10, 10):
+            cr.move_to(dx, sh_y + 18); cr.line_to(dx + 2, sh_y + 80)
+            cr.set_source_rgb(0.95, 0.95, 0.95); cr.set_line_width(4); cr.stroke()
+        cr.move_to(-26, hip_y - 70); cr.line_to(26, hip_y - 70); cr.line_to(22, hip_y - 20); cr.line_to(-22, hip_y - 20)
+        cr.close_path(); cr.set_source_rgb(*[c * 0.85 for c in look.shirt]); cr.fill_preserve(); stroke_black(cr, 3)
     if look.outfit in ("suit", "blouse"):
         # helles Hemd / Top im V-Ausschnitt
         cr.move_to(-20, sh_y - 6); cr.line_to(0, sh_y + (150 if look.outfit == "suit" else 70)); cr.line_to(20, sh_y - 6)
@@ -479,6 +487,27 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
             cr.curve_to(94, hc + 0, 84, hc - 46, 46, hc - 64)
             cr.curve_to(6, hc - 74, -44, hc - 58, -72, hc - 16)
             cr.close_path()
+        elif look.hair == "curly":
+            random_pts = [(-92, -10), (-96, -50), (-80, -86), (-48, -110), (-8, -120), (32, -116), (66, -100),
+                          (90, -72), (98, -44)]
+            for (cx_, cy_) in random_pts:
+                cr.new_sub_path()
+                cr.arc(cx_, hc + cy_, 30, 0, 2 * math.pi)
+            cr.new_sub_path()
+            cr.arc(-20, hc - 80, 60, 0, 2 * math.pi)
+        elif look.hair == "buzz":
+            cr.move_to(-97, hc - 4)
+            cr.curve_to(-104, hc - 90, -20, hc - 112, 40, hc - 104)
+            cr.curve_to(84, hc - 96, 100, hc - 66, 97, hc - 44)
+            cr.curve_to(70, hc - 68, 20, hc - 80, -20, hc - 74)
+            cr.curve_to(-60, hc - 66, -88, hc - 40, -90, hc - 4)
+            cr.close_path()
+        elif look.hair == "bald":
+            cr.move_to(-97, hc - 10)
+            cr.curve_to(-104, hc - 34, -100, hc - 48, -92, hc - 58)
+            cr.line_to(-76, hc - 50)
+            cr.curve_to(-82, hc - 30, -84, hc - 16, -80, hc + 10)
+            cr.close_path()
         elif look.hair == "bob":
             cr.move_to(-106, hc + 40)
             cr.curve_to(-114, hc - 92, 0, hc - 132, 70, hc - 104)
@@ -488,12 +517,27 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
             cr.line_to(-36, hc - 58)
             cr.curve_to(-70, hc - 50, -90, hc - 10, -92, hc + 40)
             cr.close_path()
-        cr.set_source_rgb(*hcol)
-        cr.fill_preserve()
-        stroke_black(cr, 5)
+        if look.hair == "curly":
+            cr.set_source_rgb(*BLACK); cr.set_line_width(10); cr.stroke_preserve()
+            cr.set_source_rgb(*hcol); cr.fill()
+        else:
+            cr.set_source_rgb(*hcol)
+            cr.fill_preserve()
+            stroke_black(cr, 5)
         # Glanzlinien
         cr.move_to(-40, hc - 98); cr.curve_to(-10, hc - 108, 20, hc - 106, 40, hc - 96)
         cr.set_source_rgba(1, 1, 1, 0.25); cr.set_line_width(6); cr.stroke()
+
+    if getattr(look, "beard", None):
+        cr.move_to(-70, hc + 10)
+        cr.curve_to(-60, hc + 110, 90, hc + 120, 96, hc + 6)
+        cr.curve_to(80, hc + 40, 60, hc + 36, 40, hc + 36)
+        cr.curve_to(20, hc + 30, -10, hc + 34, -30, hc + 30)
+        cr.curve_to(-50, hc + 30, -62, hc + 20, -70, hc + 10)
+        cr.close_path()
+        cr.set_source_rgb(*look.beard)
+        cr.fill_preserve()
+        stroke_black(cr, 4)
 
     # Gesicht
     lookv = st.get("look", (1.0, 0.0))

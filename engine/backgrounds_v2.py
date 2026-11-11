@@ -274,3 +274,114 @@ def sofa_front(cr):
     # Decke über der Lehne
     cr.move_to(700, 1300); cr.curve_to(760, 1280, 820, 1290, 860, 1320); cr.line_to(860, 1420); cr.line_to(720, 1400)
     cr.close_path(); fill_stroke(cr, rgb("#E9C9A0"), 4, rgb("#8C857A"))
+
+
+# ------------------------------------------------------------------ IT-Raum / Serverraum
+def rack(cr, x, y, w, h, leds=True):
+    rrect(cr, x, y, w, h, 8)
+    fill_stroke(cr, rgb("#2A3140"), 5)
+    n = int((h - 30) / 46)
+    for k in range(n):
+        yy = y + 16 + k * 46
+        rrect(cr, x + 12, yy, w - 24, 36, 4)
+        fill_stroke(cr, rgb("#3C4659"), 2)
+        for j in range(4):
+            cr.rectangle(x + 24 + j * 14, yy + 10, 8, 16)
+            cr.set_source_rgb(*rgb("#1B2130")); cr.fill()
+        if leds:
+            cr.arc(x + w - 30, yy + 18, 4, 0, 2 * math.pi)
+            cr.set_source_rgb(*rgb(("#5BEA8B", "#5BEA8B", "#FFB36B")[k % 3])); cr.fill()
+
+
+def it_room():
+    s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    cr = cairo.Context(s)
+    room(cr, rgb("#4A73A0"), rgb("#E3E9EF"), tiles="tile")
+    rack(cr, 60, 520, 230, 720)
+    rack(cr, 810, 520, 230, 720)
+    rrect(cr, 360, 520, 360, 220, 12)
+    fill_stroke(cr, rgb("#1B2230"), 6, rgb("#8EA0B2"))
+    for k in range(5):
+        cr.rectangle(390, 560 + k * 32, 100 + (k * 61) % 190, 12)
+        cr.set_source_rgb(*rgb(("#5BEA8B", "#7FB2FF", "#FFB36B")[k % 3])); cr.fill()
+    # Kabelbündel am Boden
+    for k in range(6):
+        cr.move_to(290, 1200 + k * 6); cr.curve_to(450, 1300 + k * 10, 650, 1290 + k * 8, 810, 1200 + k * 6)
+        cr.set_source_rgb(*rgb(("#7A8899", "#5E6B7C", "#97A3B1")[k % 3])); cr.set_line_width(7); cr.stroke()
+    ceiling_lamp(cr, 540)
+    s.flush()
+    return s
+
+
+def it_desk(cr, plugged=True, t=0.0):
+    """Schreibtisch mit der beigen DO-NOT-TOUCH-Box und Steckdosenleiste (vor den Figuren)."""
+    rrect(cr, 360, 1290, 660, 34, 8)
+    fill_stroke(cr, rgb("#5E6B7C"), 5)
+    for x in (390, 980):
+        cr.rectangle(x, 1324, 22, 236); cr.set_source_rgb(*rgb("#4A5666")); cr.fill()
+    # beige Box unter dem Tisch
+    rrect(cr, 640, 1360, 190, 200, 10)
+    fill_stroke(cr, rgb("#E2D6BC"), 5)
+    for k in range(4):
+        cr.rectangle(665, 1390 + k * 18, 70, 8); cr.set_source_rgb(*rgb("#BFB194")); cr.fill()
+    cr.arc(790, 1400, 9, 0, 2 * math.pi)
+    cr.set_source_rgb(*(rgb("#5BEA8B") if plugged else rgb("#3A3A3A"))); cr.fill()
+    rrect(cr, 655, 1470, 160, 50, 6)
+    cr.set_source_rgb(*rgb("#FFE14D")); cr.fill_preserve(); stroke_black(cr, 3)
+    _text(cr, "DO NOT TOUCH", 735, 1503, 22, rgb("#B3261E"))
+    # Steckdosenleiste + Kabel
+    rrect(cr, 880, 1530, 150, 34, 8)
+    fill_stroke(cr, (1, 1, 1), 3)
+    cr.move_to(830, 1460)
+    if plugged:
+        cr.curve_to(860, 1500, 880, 1540, 905, 1540)
+    else:
+        cr.curve_to(860, 1520, 840, 1560, 800, 1565)
+    cr.set_source_rgb(*rgb("#2B2B2B")); cr.set_line_width(7); cr.stroke()
+    # Gaming-Monitor auf dem Tisch
+    rrect(cr, 430, 1120, 260, 160, 10)
+    fill_stroke(cr, rgb("#15181F"), 5)
+    cr.rectangle(445, 1135, 230, 130)
+    cr.set_source_rgb(*rgb("#9A6BFF")); cr.fill()
+    cr.rectangle(545, 1280, 30, 12); cr.set_source_rgb(*rgb("#15181F")); cr.fill()
+
+
+def lobby(state="red"):
+    def make():
+        s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(s)
+        g = cairo.LinearGradient(0, 0, 0, 1300)
+        g.add_color_stop_rgb(0, *rgb("#9ED4F2")); g.add_color_stop_rgb(1, *rgb("#E3F4FB"))
+        cr.set_source(g); cr.paint()
+        # Gebäudefassade
+        cr.rectangle(0, 380, W, 920)
+        cr.set_source_rgb(*rgb("#D7DCE2")); cr.fill()
+        _text(cr, "NOVA TECH", 540, 470, 64, rgb("#2C4A6E"))
+        # Glasfront mit Türen
+        cr.rectangle(100, 540, 880, 760)
+        fill_stroke(cr, rgb("#B9D8EA"), 8, rgb("#5E6A78"))
+        for x in (320, 540, 760):
+            cr.move_to(x, 540); cr.line_to(x, 1300)
+        cr.set_source_rgb(*rgb("#5E6A78")); cr.set_line_width(8); cr.stroke()
+        cr.set_source_rgba(1, 1, 1, 0.35)
+        for x in (150, 380, 600, 820):
+            cr.move_to(x, 560); cr.line_to(x + 60, 560); cr.line_to(x - 40, 1280); cr.line_to(x - 100, 1280); cr.close_path()
+            cr.fill()
+        # Lobby innen angedeutet
+        rrect(cr, 600, 1080, 300, 120, 10)
+        cr.set_source_rgba(0.45, 0.55, 0.65, 0.5); cr.fill()
+        # Kartenleser
+        rrect(cr, 1000, 900, 60, 110, 10)
+        fill_stroke(cr, rgb("#2B2F38"), 4)
+        cr.arc(1030, 935, 14, 0, 2 * math.pi)
+        cr.set_source_rgb(*(rgb("#FF3B3B") if state == "red" else rgb("#33E07A"))); cr.fill()
+        # Gehweg
+        cr.rectangle(0, 1300, W, 620)
+        cr.set_source_rgb(*rgb("#C9C9C9")); cr.fill()
+        cr.set_source_rgba(0, 0, 0, 0.08); cr.set_line_width(3)
+        for k in range(-10, 11):
+            cr.move_to(540 + k * 90, 1300); cr.line_to(540 + k * 260, 1920)
+        cr.stroke()
+        s.flush()
+        return s
+    return make
