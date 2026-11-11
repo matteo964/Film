@@ -427,6 +427,10 @@ def render(ep, out, preview=None, start=0.0):
             render._shot_start = ev["start"]
         bgm.CLOCK["lt"] = t - render._shot_start
         bgm.CLOCK["t"] = t
+        bgm.CLOCK["speaker"] = speaker
+        _fi = int(lt * FPS)
+        bgm.CLOCK["mouth"] = float(ev["env"][_fi]) if speaker and "env" in ev and 0 <= _fi < len(ev["env"]) else 0.0
+        bgm.CLOCK["line_t"] = lt
         for fn in shot.get("overlays", []):
             fn(cr, t)
 

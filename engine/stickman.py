@@ -59,6 +59,7 @@ EMO = {
     "happy":   dict(tilt=-0.15, bh=6, lid=0.0, pupil=9, mouth="smile"),
     "sad":     dict(tilt=-0.5, bh=2, lid=0.30, pupil=8, mouth="frown"),
     "confused": dict(tilt=0.3, bh=4, lid=0.1, pupil=8, mouth="wavy", asym=True),
+    "asleep":  dict(tilt=-0.1, bh=-2, lid=1.0, pupil=8, mouth="o"),
 }
 
 
@@ -241,6 +242,20 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
             cr.line_to(150 + side * 12, hip_y + 4)
             cr.line_to(160 + side * 14, hip_y + 250)
             cr.line_to(195 + side * 14, hip_y + 252)
+            stroke_black(cr, 12)
+    elif not hide_legs and st.get("walk") is not None:
+        ph = st["walk"]
+        for side in (-1, 1):
+            sw = math.sin(ph + (0 if side < 0 else math.pi)) * 0.42
+            kx = 6 + math.sin(sw) * 210
+            ky = hip_y + 10 + math.cos(sw) * 210
+            lift = max(0.0, math.sin(ph + (0 if side < 0 else math.pi) + 1.2)) * 40
+            fx = math.sin(sw) * 420
+            fy = -8 - lift
+            cr.move_to(side * 6, hip_y + 10)
+            cr.line_to(kx + 10 * (1 if sw > 0 else 0), ky - lift * 0.5)
+            cr.line_to(fx, fy)
+            cr.line_to(fx + 34, fy + 4)
             stroke_black(cr, 12)
     elif not hide_legs:
         for side in (-1, 1):
