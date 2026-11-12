@@ -385,3 +385,91 @@ def lobby(state="red"):
         s.flush()
         return s
     return make
+
+
+# ------------------------------------------------------------------ Meetingraum 2 (Lighthouse-Pitch)
+def meeting2(mode="pitch"):
+    def make():
+        s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(s)
+        room(cr, rgb("#DCE3EA"), rgb("#8D9AA8"), tiles="wood")
+        window_city(cr, 820, 470, 230, 640)
+        sun_beams(cr, 830, 480, 220, 640, alpha=0.14)
+        plant(cr, 60, 1240, 0.8)
+        sx, sy, sw, sh = 100, 450, 680, 430
+        rrect(cr, sx, sy, sw, sh, 12)
+        fill_stroke(cr, rgb("#1B1F27"), 8)
+        ix, iy, iw, ih = sx + 18, sy + 18, sw - 36, sh - 36
+        cr.save(); cr.rectangle(ix, iy, iw, ih); cr.clip()
+        cr.set_source_rgb(1, 1, 1); cr.paint()
+        cr.rectangle(ix, iy, iw, 64); cr.set_source_rgb(*rgb("#0F4C5C")); cr.fill()
+        if mode == "pitch":
+            _text(cr, "PROJECT LIGHTHOUSE", ix + iw / 2, iy + 44, 30, (1, 1, 1))
+            # Leuchtturm-Icon
+            cr.move_to(ix + 110, iy + 330); cr.line_to(ix + 140, iy + 130); cr.line_to(ix + 180, iy + 130); cr.line_to(ix + 210, iy + 330)
+            cr.close_path(); fill_stroke(cr, rgb("#E23B3B"), 4)
+            for yy in (180, 250):
+                cr.rectangle(ix + 128, iy + yy, 64, 20); cr.set_source_rgb(1, 1, 1); cr.fill()
+            cr.move_to(ix + 160, iy + 120); cr.line_to(ix + 300, iy + 90); cr.line_to(ix + 300, iy + 150); cr.close_path()
+            cr.set_source_rgba(1, 0.85, 0.3, 0.7); cr.fill()
+            _text(cr, "Save $3M / year", ix + 440, iy + 170, 38, rgb("#1F8A47"))
+            _text(cr, "Page 1 of 24", ix + 440, iy + 230, 28, rgb("#6E7A88"), bold=False)
+        elif mode == "blank":
+            _text(cr, "PROJECT LIGHTHOUSE · PAGE 2", ix + iw / 2, iy + 44, 30, (1, 1, 1))
+            _text(cr, "Supplier switch:", ix + 60, iy + 150, 36, rgb("#0F4C5C"), center=False)
+            _text(cr, "??? (ask Mia)", ix + 360, iy + 150, 36, rgb("#E23B3B"), center=False)
+            _text(cr, "Cost model:", ix + 60, iy + 220, 36, rgb("#0F4C5C"), center=False)
+            _text(cr, "[locked]", ix + 300, iy + 220, 36, rgb("#E23B3B"), center=False)
+            cr.rectangle(ix + 60, iy + 270, iw - 120, 70)
+            cr.set_source_rgb(*rgb("#F1F3F5")); cr.fill()
+            _text(cr, "This file is locked by its owner", ix + iw / 2, iy + 315, 28, rgb("#6E7A88"), bold=False)
+        elif mode == "history":
+            _text(cr, "VERSION HISTORY · Lighthouse.pptx", ix + iw / 2, iy + 44, 28, (1, 1, 1))
+            rows = [("Created by Mia Torres", "Tue 2:07 AM", "#1F8A47"), ("Edited by Mia Torres  (46x)", "Tue 2:07–4:55 AM", "#1F8A47"),
+                    ("Viewed by Brad Miller  (1x)", "Tue 5:03 PM", "#E23B3B"), ("Copied by Brad Miller", "Tue 5:04 PM", "#E23B3B")]
+            for k, (a, b, c) in enumerate(rows):
+                y = iy + 120 + k * 72
+                cr.arc(ix + 50, y - 10, 12, 0, 2 * math.pi); cr.set_source_rgb(*rgb(c)); cr.fill()
+                _text(cr, a, ix + 80, y, 27, rgb("#1B1F27"), center=False)
+                _text(cr, b, ix + iw - 205, y, 22, rgb("#6E7A88"), bold=False, center=False)
+        elif mode == "approved":
+            _text(cr, "PROJECT LIGHTHOUSE", ix + iw / 2, iy + 44, 30, (1, 1, 1))
+            cr.arc(ix + iw / 2, iy + 185, 70, 0, 2 * math.pi)
+            fill_stroke(cr, rgb("#33C46A"), 5)
+            cr.move_to(ix + iw / 2 - 34, iy + 185); cr.line_to(ix + iw / 2 - 6, iy + 213); cr.line_to(ix + iw / 2 + 38, iy + 157)
+            cr.set_source_rgb(1, 1, 1); cr.set_line_width(15); cr.set_line_cap(cairo.LINE_CAP_ROUND); cr.stroke()
+            _text(cr, "APPROVED · Project lead: Mia Torres", ix + iw / 2, iy + 320, 30, rgb("#1F8A47"))
+        cr.restore()
+        rrect(cr, 60, 1300, 960, 44, 12)
+        fill_stroke(cr, rgb("#F2F2F2"), 5, rgb("#6E6E6E"))
+        cr.rectangle(120, 1344, 840, 120)
+        cr.set_source_rgba(0, 0, 0, 0.08); cr.fill()
+        s.flush()
+        return s
+    return make
+
+
+def work_desk(cr, laptop_glow=False):
+    """Schreibtisch mit Laptop und Lampe (vor einer stehenden Figur)."""
+    rrect(cr, 300, 1290, 720, 34, 8)
+    fill_stroke(cr, rgb("#E9EDF2"), 5, rgb("#3B4555"))
+    for x in (330, 970):
+        cr.rectangle(x, 1324, 22, 236); cr.set_source_rgb(*rgb("#3B4555")); cr.fill()
+    # Laptop
+    cr.move_to(560, 1290); cr.line_to(590, 1170); cr.line_to(760, 1170); cr.line_to(780, 1290); cr.close_path()
+    fill_stroke(cr, rgb("#2B2F38"), 4)
+    cr.move_to(578, 1278); cr.line_to(600, 1182); cr.line_to(750, 1182); cr.line_to(766, 1278); cr.close_path()
+    cr.set_source_rgb(*(rgb("#BFE3F2") if laptop_glow else rgb("#8FA3B5"))); cr.fill()
+    # Tasse
+    rrect(cr, 830, 1235, 46, 56, 6); fill_stroke(cr, (1, 1, 1), 3)
+    # Lampe
+    cr.move_to(940, 1290); cr.line_to(940, 1140); cr.line_to(880, 1100); stroke_black(cr, 6)
+    cr.move_to(840, 1110); cr.line_to(900, 1070); cr.line_to(920, 1120); cr.close_path()
+    fill_stroke(cr, rgb("#FFD86B"), 4)
+
+
+def night_overlay(cr):
+    cr.set_source_rgba(0.03, 0.05, 0.15, 0.55); cr.paint()
+    g = cairo.RadialGradient(880, 1150, 20, 880, 1150, 520)
+    g.add_color_stop_rgba(0, 1, 0.9, 0.55, 0.45); g.add_color_stop_rgba(1, 1, 0.9, 0.55, 0)
+    cr.set_source(g); cr.paint()
