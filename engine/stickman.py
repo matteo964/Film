@@ -37,6 +37,8 @@ POSES = {
     "type":    {"L": (60, -440), "R": (125, -445)},
     "write":   {"L": (-50, -392, "out"), "R": (175, -820)},
     "film":    {"L": (60, -640), "R": (185, -690)},
+    "shoot":   {"L": (90, -730), "R": (120, -745)},
+    "camera_hold": {"L": (-50, -392, "out"), "R": (120, -560)},
     "dance1":  {"L": (-160, -880), "R": (170, -600)},
     "dance2":  {"L": (-170, -600), "R": (160, -880)},
     "dance3":  {"L": (-60, -760), "R": (60, -760)},
@@ -508,6 +510,15 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
             cr.line_to(-76, hc - 50)
             cr.curve_to(-82, hc - 30, -84, hc - 16, -80, hc + 10)
             cr.close_path()
+        elif look.hair == "updo":
+            cr.new_sub_path()
+            cr.arc(-30, hc - 120, 46, 0, 2 * math.pi)
+            cr.move_to(-98, hc + 6)
+            cr.curve_to(-108, hc - 86, -20, hc - 120, 46, hc - 104)
+            cr.curve_to(92, hc - 92, 104, hc - 60, 98, hc - 30)
+            cr.curve_to(70, hc - 58, 20, hc - 70, -20, hc - 64)
+            cr.curve_to(-60, hc - 56, -86, hc - 30, -88, hc + 6)
+            cr.close_path()
         elif look.hair == "bob":
             cr.move_to(-106, hc + 40)
             cr.curve_to(-114, hc - 92, 0, hc - 132, 70, hc - 104)
@@ -730,6 +741,27 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         draw_phone(cr, hr[0], hr[1])
     elif prop == "mop":
         draw_mop(cr, hr[0], hr[1])
+        cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
+        cr.set_source_rgb(*BLACK)
+        cr.fill()
+    elif prop == "camera":
+        cr.save()
+        cr.translate(hr[0] + 6, hr[1] - 30)
+        rrect(cr, -48, -34, 96, 64, 10)
+        cr.set_source_rgb(0.12, 0.12, 0.14)
+        cr.fill_preserve()
+        stroke_black(cr, 3)
+        cr.arc(8, -2, 24, 0, 2 * math.pi)
+        cr.set_source_rgb(0.25, 0.27, 0.32)
+        cr.fill_preserve()
+        stroke_black(cr, 3)
+        cr.arc(8, -2, 13, 0, 2 * math.pi)
+        cr.set_source_rgb(0.35, 0.55, 0.85)
+        cr.fill()
+        cr.rectangle(-40, -44, 24, 12)
+        cr.set_source_rgb(0.12, 0.12, 0.14)
+        cr.fill()
+        cr.restore()
         cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
         cr.set_source_rgb(*BLACK)
         cr.fill()

@@ -473,3 +473,105 @@ def night_overlay(cr):
     g = cairo.RadialGradient(880, 1150, 20, 880, 1150, 520)
     g.add_color_stop_rgba(0, 1, 0.9, 0.55, 0.45); g.add_color_stop_rgba(1, 1, 0.9, 0.55, 0)
     cr.set_source(g); cr.paint()
+
+
+# ------------------------------------------------------------------ Hochzeitssaal mit Leinwand
+def _couple_photo(cr, x, y, w, h, blur=False, thumb=False):
+    cr.save(); cr.rectangle(x, y, w, h); cr.clip()
+    g = cairo.LinearGradient(0, y, 0, y + h)
+    g.add_color_stop_rgb(0, *rgb("#F6D7B0")); g.add_color_stop_rgb(1, *rgb("#E8B98A"))
+    cr.set_source(g); cr.paint()
+    # Blumenbogen
+    cr.arc(x + w / 2, y + h * 0.95, w * 0.42, math.pi, 2 * math.pi)
+    cr.set_source_rgb(1, 1, 1); cr.set_line_width(18); cr.stroke()
+    random.seed(9)
+    for k in range(18):
+        a = math.pi + math.pi * k / 17
+        cr.arc(x + w / 2 + w * 0.42 * math.cos(a), y + h * 0.95 + w * 0.42 * math.sin(a), 12, 0, 2 * math.pi)
+        cr.set_source_rgb(*rgb(random.choice(("#F7A1B5", "#FFFFFF", "#B7E1A1")))); cr.fill()
+    # Brautpaar (Silhouetten)
+    for (dx, col) in ((-50, "#FFFFFF"), (50, "#2B2F38")):
+        cx = x + w / 2 + dx
+        cr.arc(cx, y + h * 0.42, 34, 0, 2 * math.pi)
+        cr.set_source_rgb(*rgb("#F2DCC0")); cr.fill_preserve(); stroke_black(cr, 3)
+        cr.move_to(cx - 30, y + h * 0.52); cr.line_to(cx + 30, y + h * 0.52); cr.line_to(cx + (55 if dx < 0 else 30), y + h)
+        cr.line_to(cx - (55 if dx < 0 else 30), y + h); cr.close_path()
+        cr.set_source_rgb(*rgb(col)); cr.fill_preserve(); stroke_black(cr, 3)
+    if blur:
+        cr.set_source_rgba(1, 1, 1, 0.45); cr.paint()
+        for k in range(6):
+            cr.rectangle(x, y + k * h / 6, w, h / 12)
+            cr.set_source_rgba(0.9, 0.8, 0.7, 0.35); cr.fill()
+    if thumb:
+        cr.arc(x + w * 0.15, y + h * 0.75, h * 0.42, 0, 2 * math.pi)
+        g2 = cairo.RadialGradient(x + w * 0.1, y + h * 0.7, 10, x + w * 0.15, y + h * 0.75, h * 0.42)
+        g2.add_color_stop_rgb(0, *rgb("#E9A08A")); g2.add_color_stop_rgb(1, *rgb("#B5604C"))
+        cr.set_source(g2); cr.fill()
+    cr.restore()
+
+
+def reception(mode="photo"):
+    def make():
+        s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+        cr = cairo.Context(s)
+        room(cr, rgb("#F1E6D8"), rgb("#B89B7A"), tiles="wood", ceiling=(0.97, 0.95, 0.92))
+        # Vorhänge
+        for x in (0, 960):
+            cr.rectangle(x, WALL_TOP, 120, WALL_BOT - WALL_TOP)
+            cr.set_source_rgb(*rgb("#C9A27A")); cr.fill()
+        # Kronleuchter
+        for cx in (230, 850):
+            cr.move_to(cx, 0); cr.line_to(cx, 200); stroke_black(cr, 3)
+            for k in range(5):
+                cr.arc(cx - 80 + k * 40, 230 + (k % 2) * 16, 12, 0, 2 * math.pi)
+                fill_stroke(cr, rgb("#FFE9A8"), 2, rgb("#B08A3A"))
+            gl = cairo.RadialGradient(cx, 240, 10, cx, 240, 420)
+            gl.add_color_stop_rgba(0, 1, 0.92, 0.65, 0.35); gl.add_color_stop_rgba(1, 1, 0.92, 0.65, 0)
+            cr.set_source(gl); cr.paint()
+        # Lichterkette
+        cr.move_to(120, 420); cr.curve_to(400, 470, 680, 470, 960, 420); stroke_black(cr, 2)
+        for k in range(12):
+            tt = k / 11
+            x = 120 + 840 * tt
+            y = 420 + math.sin(math.pi * tt) * 45
+            cr.arc(x, y + 10, 8, 0, 2 * math.pi); cr.set_source_rgb(*rgb("#FFE58A")); cr.fill()
+        # Leinwand
+        sx, sy, sw, sh = 150, 480, 780, 470
+        rrect(cr, sx - 14, sy - 14, sw + 28, sh + 28, 8)
+        fill_stroke(cr, rgb("#2B2B2B"), 4)
+        ix, iy, iw, ih = sx, sy, sw, sh
+        if mode in ("photo", "watermark", "final"):
+            _couple_photo(cr, ix, iy, iw, ih)
+        elif mode == "nephew":
+            _couple_photo(cr, ix, iy, iw, ih, blur=True, thumb=True)
+        if mode == "watermark":
+            cr.save(); cr.rectangle(ix, iy, iw, ih); cr.clip()
+            cr.translate(ix + iw / 2, iy + ih / 2); cr.rotate(-0.38)
+            for k in (-1, 0, 1):
+                _text(cr, "UNPAID PREVIEW", 0, k * 150 + 25, 66, rgb("#E23B3B"))
+            cr.restore()
+            rrect(cr, ix + 20, iy + 16, iw - 40, 54, 10)
+            cr.set_source_rgba(0, 0, 0, 0.75); cr.fill()
+            _text(cr, "Invoice #207 · $3,500 due · Lily Chen Photography", ix + iw / 2, iy + 53, 28, (1, 1, 1))
+        if mode == "final":
+            rrect(cr, ix + 180, iy + 16, iw - 360, 54, 10)
+            cr.set_source_rgba(1, 1, 1, 0.85); cr.fill()
+            _text(cr, "Emily & James  ·  Forever", ix + iw / 2, iy + 53, 30, rgb("#B08A3A"))
+        # runde Tische
+        for (cx, cy, r) in ((180, 1330, 150), (900, 1330, 150)):
+            cr.save(); cr.translate(cx, cy); cr.scale(1, 0.32); cr.arc(0, 0, r, 0, 2 * math.pi); cr.restore()
+            fill_stroke(cr, (1, 1, 1), 4, rgb("#B8A890"))
+            cr.rectangle(cx - r, cy, 2 * r, 120); cr.set_source_rgb(*rgb("#F7F3EC")); cr.fill()
+            cr.arc(cx, cy - 40, 30, 0, 2 * math.pi); cr.set_source_rgb(*rgb("#F7A1B5")); cr.fill()
+        s.flush()
+        return s
+    return make
+
+
+def tripod_camera(cr):
+    cr.move_to(880, 1560); cr.line_to(940, 1230); cr.line_to(1000, 1560)
+    cr.move_to(940, 1230); cr.line_to(940, 1560)
+    stroke_black(cr, 6)
+    rrect(cr, 885, 1150, 110, 80, 10)
+    cr.set_source_rgb(0.12, 0.12, 0.14); cr.fill_preserve(); stroke_black(cr, 3)
+    cr.arc(915, 1190, 26, 0, 2 * math.pi); cr.set_source_rgb(0.25, 0.27, 0.32); cr.fill()
