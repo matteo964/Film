@@ -540,6 +540,15 @@ def reception(mode="photo"):
         rrect(cr, sx - 14, sy - 14, sw + 28, sh + 28, 8)
         fill_stroke(cr, rgb("#2B2B2B"), 4)
         ix, iy, iw, ih = sx, sy, sw, sh
+        if mode == "gala":
+            g = cairo.LinearGradient(ix, iy, ix + iw, iy + ih)
+            g.add_color_stop_rgb(0, *rgb("#14213D")); g.add_color_stop_rgb(1, *rgb("#2E4A7D"))
+            cr.rectangle(ix, iy, iw, ih); cr.set_source(g); cr.fill()
+            cr.arc(ix + iw / 2, iy + 170, 80, 0, 2 * math.pi)
+            cr.set_source_rgb(*rgb("#E5B94E")); cr.set_line_width(10); cr.stroke()
+            _text(cr, "25", ix + iw / 2, iy + 200, 84, rgb("#E5B94E"))
+            _text(cr, "HALCYON CORP", ix + iw / 2, iy + 330, 54, (1, 1, 1))
+            _text(cr, "25 YEARS OF EXCELLENCE", ix + iw / 2, iy + 390, 30, rgb("#E5B94E"))
         if mode in ("photo", "watermark", "final"):
             _couple_photo(cr, ix, iy, iw, ih)
         elif mode == "nephew":
@@ -575,3 +584,42 @@ def tripod_camera(cr):
     rrect(cr, 885, 1150, 110, 80, 10)
     cr.set_source_rgb(0.12, 0.12, 0.14); cr.fill_preserve(); stroke_black(cr, 3)
     cr.arc(915, 1190, 26, 0, 2 * math.pi); cr.set_source_rgb(0.25, 0.27, 0.32); cr.fill()
+
+
+
+# ------------------------------------------------------------------ Backstube
+def bakery():
+    s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    cr = cairo.Context(s)
+    room(cr, rgb("#F4E9DA"), rgb("#E9E4DC"), tiles="tile")
+    # Fliesenspiegel
+    for r in range(6):
+        for c in range(14):
+            rrect(cr, c * 80 - (r % 2) * 40, 820 + r * 50, 76, 46, 4)
+            cr.set_source_rgb(*rgb("#FFFFFF")); cr.fill_preserve()
+            cr.set_source_rgba(0, 0, 0, 0.08); cr.set_line_width(2); cr.stroke()
+    # Regal mit Torten
+    cr.rectangle(80, 560, 920, 14); cr.set_source_rgb(*rgb("#9C6B43")); cr.fill()
+    for k, (col, h) in enumerate((("#F7A1B5", 90), ("#FFFFFF", 120), ("#8B5A33", 80), ("#B7E1A1", 100), ("#FFE58A", 70))):
+        x = 140 + k * 180
+        for t_ in range(2 if h > 90 else 1):
+            rrect(cr, x - 60 + t_ * 15, 560 - (t_ + 1) * h / 2, 120 - t_ * 30, h / 2, 8)
+            fill_stroke(cr, rgb(col), 3)
+    # Ofen
+    rrect(cr, 760, 820, 260, 300, 14)
+    fill_stroke(cr, rgb("#C9CED4"), 5)
+    rrect(cr, 790, 900, 200, 160, 10)
+    g = cairo.RadialGradient(890, 980, 10, 890, 980, 120)
+    g.add_color_stop_rgb(0, *rgb("#FFB36B")); g.add_color_stop_rgb(1, *rgb("#7A3B1A"))
+    cr.set_source(g); cr.fill_preserve(); stroke_black(cr, 4)
+    # Arbeitstheke
+    rrect(cr, 40, 1180, 1000, 36, 8)
+    fill_stroke(cr, rgb("#F2F2F2"), 5, rgb("#8C96A3"))
+    cr.rectangle(60, 1216, 960, 330)
+    fill_stroke(cr, rgb("#D9C2A3"), 5)
+    # Rührschüssel + Mixer
+    cr.move_to(140, 1180); cr.curve_to(150, 1110, 290, 1110, 300, 1180); cr.close_path()
+    fill_stroke(cr, rgb("#BFE3F2"), 4)
+    ceiling_lamp(cr, 540)
+    s.flush()
+    return s
