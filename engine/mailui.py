@@ -103,3 +103,53 @@ def dialog(cr, title, lines, color="#B3261E"):
     _text(cr, title, x + w / 2, y + 54, 34, (1, 1, 1))
     for k, ln in enumerate(lines):
         _text(cr, ln, x + w / 2, y + 160 + k * 60, 32, rgb("#1B1F27"), bold=(k == 0))
+
+
+def cold_open(cr, frm, to, subject, lines, marks, lt, read_max=287):
+    """Großformatige E-Mail mit Textmarker-Animation (marks: Liste (zeile, start, ende) in Zeichen) und Lese-Zähler."""
+    import cairo
+    cr.set_source_rgb(*rgb("#11151C")); cr.paint()
+    x, y, w = 40, 470, 1000
+    rrect(cr, x, y, w, 960, 22); cr.set_source_rgb(1, 1, 1); cr.fill()
+    rrect(cr, x, y, w, 70, 22); cr.set_source_rgb(*rgb("#0F6CBD")); cr.fill()
+    cr.rectangle(x, y + 40, w, 30); cr.fill()
+    _text(cr, "New message", x + 30, y + 48, 28, (1, 1, 1), center=False)
+    _text(cr, "From:", x + 30, y + 130, 30, rgb("#6E7A88"), center=False)
+    _text(cr, frm, x + 130, y + 130, 30, rgb("#1B1F27"), center=False)
+    rrect(cr, x + 20, y + 152, w - 40, 56, 10); cr.set_source_rgb(*rgb("#FFD6D6")); cr.fill()
+    _text(cr, "To:", x + 30, y + 192, 30, rgb("#B3261E"), center=False)
+    _text(cr, to, x + 90, y + 192, 32, rgb("#B3261E"), center=False)
+    _text(cr, "Subject: " + subject, x + 30, y + 260, 28, rgb("#3B4555"), center=False)
+    cr.select_font_face("TikTok Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    size = 42
+    cr.set_font_size(size)
+    for k, ln in enumerate(lines):
+        ly = y + 350 + k * 70
+        for (li, a, b, t0) in marks:
+            if li != k:
+                continue
+            f = max(0.0, min(1.0, (lt - t0) / 0.7))
+            if f <= 0:
+                continue
+            xa = x + 40 + cr.text_extents(ln[:a]).x_advance
+            xb = x + 40 + cr.text_extents(ln[:b]).x_advance
+            cr.rectangle(xa - 4, ly - size * 0.85, (xb - xa + 8) * f, size * 1.1)
+            cr.set_source_rgba(1.0, 0.9, 0.1, 0.85); cr.fill()
+        cr.move_to(x + 40, ly)
+        cr.set_source_rgb(*rgb("#1B1F27"))
+        cr.show_text(ln)
+    n = int(read_max * max(0.0, min(1.0, lt / 4.0)) ** 0.6)
+    rrect(cr, x + w - 330, y + 222, 300, 60, 30); cr.set_source_rgb(*rgb("#E23B3B")); cr.fill()
+    _text(cr, f"Read by {n}", x + w - 180, y + 263, 32, (1, 1, 1))
+
+
+def stamp(cr, s):
+    import cairo
+    cr.select_font_face("Bebas Neue", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+    cr.set_font_size(110)
+    e = cr.text_extents(s)
+    cr.set_source_rgba(0, 0, 0, 0.6); cr.paint()
+    cr.move_to((W - e.x_advance) / 2, 1000)
+    cr.text_path(s)
+    cr.set_source_rgb(0, 0, 0); cr.set_line_width(12); cr.stroke_preserve()
+    cr.set_source_rgb(1, 1, 1); cr.fill()

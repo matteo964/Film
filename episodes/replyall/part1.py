@@ -6,13 +6,17 @@ HOOK = HOOK_BASE
 HOOK_UNTIL = None
 
 SCRIPT = [
+    dict(shot="cold", s="J", t="Everyone. Check your email. Right now.", e={"J": "shocked", "S": "neutral", "M": "smug"},
+         sfx=[("ding", 0.0), ("ding", 0.3), ("ding", 0.6)], say="[urgent whisper] Everyone. Check your email. Right now."),
+    dict(s="S", t="The team building retreat is just so I can pick who to lay off?", e={"S": "shocked"},
+         say="[reading, horrified] The team building retreat is just so I can pick who to lay off?"),
+    dict(s="S", t="Wait. He's presenting my project as his?", e={"S": "angry"}, say="[stunned] Wait... he's presenting MY project as his?"),
+    dict(s="J", t="And he sent it to all three hundred and twelve of us.", e={"J": "smug"}, gap=0.3),
+    dict(shot="earlier", beat=1.4, sfx=[("whoosh", 0.0)]),
     dict(shot="open_SJ_plain", s="J", t="Did you see the invite for the team building retreat? Martin says it's for bonding.",
          e={"J": "smug", "S": "neutral"}, p={"J": "explain", "S": "idle"}),
-    dict(s="S", t="Martin hasn't bonded with anyone since twenty nineteen.", e={"S": "smug"}, p={"S": "cross"},
-         say="[dryly] Martin hasn't bonded with anyone since twenty nineteen."),
     dict(s="S", t="I just hope my Q3 project finally gets noticed in the promotion review.", e={"S": "worried"}, p={"S": "chest"}),
-    dict(s="J", t="Didn't Martin promise he'd present it with your name on it?", e={"J": "neutral"}),
-    dict(s="S", t="Full credit. His words.", e={"S": "happy"}, say="[hopeful] Full credit. His words.", gap=0.4),
+    dict(s="S", t="Martin promised full credit. His words.", e={"S": "happy"}, say="[hopeful] Martin promised full credit. His words.", gap=0.4),
     dict(shot="desk_M", s="M", t="Okay. Quick email to Greg before the meeting. Just between us.", e={"M": "smug"}, p={"M": "type"},
          say="[smug, to himself] Okay. Quick email to Greg before the meeting. Just between us."),
     dict(shot="mail_typing", s="M", t="Greg. Between us. The team building retreat is just so I can pick who to lay off.",

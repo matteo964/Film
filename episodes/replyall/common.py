@@ -7,7 +7,7 @@ from backgrounds import rgb
 from stickman import Look
 
 GAP = 0.15
-HOOK_BASE = ["POV: Your boss accidentally", "hits Reply All"]
+HOOK_BASE = ["POV: Your boss meant to send", "this email to ONE person..."]
 CAPTIONS = True
 CAPTION_STYLE = "highlight"
 
@@ -118,7 +118,22 @@ def martin_desk():
     return dict(bg="open", layers=[("char", "M", 330, Y1, S1, 1), ("fn", lambda cr: B.work_desk(cr, True))])
 
 
+CO_LINES = ["Greg, between us:", "The team-building retreat is just", "so I can pick who to lay off.",
+            "And I'm presenting Sofia's project", "as mine in my promotion review.", "LOL. These people will believe anything."]
+CO_MARKS = [(2, 9, 28, 2.0), (3, 19, 34, 4.3), (4, 0, 7, 4.8)]
+
+
+def sc_cold(cr, t):
+    MU.cold_open(cr, "Martin Reed (Manager)", "All Staff (312)", "RE: Company Picnic", CO_LINES, CO_MARKS, lt())
+
+
+def sc_earlier(cr, t):
+    MU.stamp(cr, "10 MINUTES EARLIER")
+
+
 SHOTS = {
+    "cold": dict(bg="mail", overlays=[sc_cold], layers=[]),
+    "earlier": dict(bg="open", layers=[("char", "M", 330, Y1, S1, 1), ("fn", lambda cr: B.work_desk(cr, True))], front=[sc_earlier]),
     "desk_M": martin_desk(),
     "mail_typing": dict(bg="mail", overlays=[sc_typing], layers=[]),
     "mail_replyall": dict(bg="mail", overlays=[sc_replyall], layers=[]),
