@@ -464,6 +464,10 @@ def render(ep, out, preview=None, start=0.0):
         if ev["shot"] != getattr(render, "_last_shot", None):
             render._last_shot = ev["shot"]
             render._shot_start = ev["start"]
+        bgm.CLOCK["emo"] = {k: v.emotion for k, v in states.items()}
+        bgm.CLOCK["pose"] = {k: v.pose for k, v in states.items()}
+        bgm.CLOCK["prop"] = {k: v.prop for k, v in states.items()}
+        bgm.CLOCK["lookdir"] = {k: v.look for k, v in states.items()}
         bgm.CLOCK["lt"] = t - render._shot_start
         bgm.CLOCK["t"] = t
         bgm.CLOCK["speaker"] = speaker
