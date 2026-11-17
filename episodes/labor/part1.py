@@ -18,6 +18,8 @@ SCRIPT = [
     dict(shot="meet_D", s="D", t="Babies take hours. Sometimes days. This deal takes ninety minutes.", e={"D": "smug"}, p={"D": "explain"},
          say="[dismissive] Babies take hours. Sometimes days. This deal takes ninety minutes."),
     dict(s="D", t="Your wife will understand. Priorities, Ethan.", e={"D": "smug"}, p={"D": "shrug"}),
+    dict(shot="meet_T", s="T", t="Doug, we can pause. A baby is more important than a contract.", e={"T": "neutral"}, p={"T": "explain"}),
+    dict(shot="meet_D", s="D", t="No, no. Ethan is a professional. He'll stay.", e={"D": "smug"}, p={"D": "stop"}),
     dict(shot="meet_E", s="E", t="You're right. Priorities.", e={"E": "calm"}, p={"E": "idle"}, say="[quiet, decided] You're right. Priorities."),
     dict(shot="meet_D", s="D", t="Good man. Now sit down.", e={"D": "happy"}, p={"D": "point"}),
     dict(shot="meet_DE", s="E", t="I'm leaving.", e={"E": "angry", "D": "shocked"}, p={"E": "stop", "D": "idle"}, punch=True),

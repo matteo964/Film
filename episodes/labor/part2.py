@@ -21,6 +21,8 @@ SCRIPT = [
     dict(s="E", t="I might not have a job anymore. But that's a problem for Monday.", e={"E": "calm"}, p={"E": "shrug"}, sfx=[("ding", 3.4)]),
     dict(shot="fired", s="E", t="Leave equals you're fired. Return your laptop Monday.", e={"E": "annoyed"},
          say="[reading, sighing] 'Leave equals you're fired. Return your laptop Monday.'"),
+    dict(shot="bed_EW", s="W", t="Your boss fired you for this?", e={"W": "angry"}),
+    dict(s="E", t="He did. And I'd do it again. Every single time.", e={"E": "happy"}, p={"E": "pray"}),
     dict(shot="meet_DT", s="T", t="Doug, we won't be signing today. Or any day.", e={"T": "angry", "D": "shocked"}, p={"T": "cross", "D": "idle"}),
     dict(s="D", t="Wait! Please! What can I do?", e={"D": "worried"}, p={"D": "pray"}, say="[desperate] Wait! Please! What can I do?"),
     dict(shot="meet_T", s="T", t="Tell me which hospital Ethan is at. I'd like to meet the only person at your company who understood our values.",

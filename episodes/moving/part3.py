@@ -22,6 +22,8 @@ SCRIPT = [
          say="[warm] Rosa, I'd like you to run the team from Monday. Tuesday, actually."),
     dict(s="R", t="I'd love that. Thank you, Mr. Patel.", e={"R": "happy"}, p={"R": "chest"}),
     dict(s="P", t="Now, who wants pizza? It's on me.", e={"P": "happy"}, p={"P": "shrug"}, say="[cheerful] Now, who wants pizza? It's on me.", gap=0.4),
+    dict(shot="house_CPM", s="M", t="Craig, sweetie, where do you want the piano?", e={"M": "happy", "C": "worried", "P": "smug"}, p={"M": "explain"}),
+    dict(s="P", t="Upstairs, I think. Craig will carry it. Team building.", e={"P": "smug"}, p={"P": "point"}),
     dict(shot="end", s="C", t="Hey! Can someone help me with this couch?", e={"C": "worried", "R": "smug"}, p={"R": "mug"}, prop={"R": "mug"},
          say="[straining, desperate] Hey! Can someone help me with this couch?"),
     dict(s="R", t="Sorry, Craig. We're on break. Lift with your legs.", e={"R": "smug"}, cam="med",

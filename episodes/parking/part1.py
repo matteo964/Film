@@ -24,6 +24,7 @@ SCRIPT = [
          p={"A": "cross"}, sfx=[("whoosh", 0.0)]),
     dict(shot="lot_R", s="R", t="Nice weather, Ava! Good thing I'm parked right by the door.", e={"R": "happy"}, p={"R": "mug"}, prop={"R": "mug"},
          say="[mocking, cheerful] Nice weather, Ava! Good thing I'm parked right by the door."),
+    dict(shot="rain_A", s="A", t="Day nine. Day ten. Day eleven. Same red car. Same smug face.", e={"A": "angry"}, p={"A": "hips"}),
     dict(shot="lot_AR", s="A", t="Rex, the sign says violators get towed.", e={"A": "annoyed", "R": "smug"}, p={"A": "point"}, look={"A": "away"}),
     dict(s="R", t="Nobody tows the boss.", e={"R": "smug"}, p={"R": "cross"}, cam="med", say="[laughs] Nobody tows the boss."),
     dict(shot="lot_A_phone", s="A", t="Hi, Big Mike's Towing? I'd like to report an unauthorized vehicle.", e={"A": "smug"}, p={"A": "phone"},
