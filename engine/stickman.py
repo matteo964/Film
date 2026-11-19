@@ -37,6 +37,7 @@ POSES = {
     "type":    {"L": (60, -440), "R": (125, -445)},
     "write":   {"L": (-50, -392, "out"), "R": (175, -820)},
     "film":    {"L": (60, -640), "R": (185, -690)},
+    "game":    {"L": (70, -520), "R": (120, -525)},
     "carry":   {"L": (130, -560), "R": (170, -560)},
     "shoot":   {"L": (90, -730), "R": (120, -745)},
     "camera_hold": {"L": (-50, -392, "out"), "R": (120, -560)},
@@ -766,6 +767,17 @@ def draw_figure(cr, look, x, y, scale, facing, st, t, hide_legs=False, shiver=0.
         cr.arc(hr[0], hr[1], 15, 0, 2 * math.pi)
         cr.set_source_rgb(*BLACK)
         cr.fill()
+    elif prop == "controller":
+        cr.save()
+        cr.translate(hr[0] - 20, hr[1] + 4)
+        cr.move_to(-60, -10); cr.curve_to(-70, 30, -40, 40, -25, 20); cr.line_to(25, 20)
+        cr.curve_to(40, 40, 70, 30, 60, -10); cr.curve_to(50, -30, -50, -30, -60, -10); cr.close_path()
+        cr.set_source_rgb(0.12, 0.12, 0.15)
+        cr.fill_preserve()
+        stroke_black(cr, 3)
+        for dx, c in ((30, (0.9, 0.3, 0.3)), (42, (0.3, 0.8, 0.4))):
+            cr.arc(dx, -6, 5, 0, 2 * math.pi); cr.set_source_rgb(*c); cr.fill()
+        cr.restore()
     elif prop == "tablet":
         cr.save()
         cr.translate(hr[0] - 20, hr[1] - 10)

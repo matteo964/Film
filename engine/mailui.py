@@ -36,8 +36,8 @@ def _wrap(cr, text, width, size):
     return lines
 
 
-def compose(cr, to, subject, body, typed=1.0, hover_reply_all=False, highlight_to=False, sent=False):
-    frame(cr)
+def compose(cr, to, subject, body, typed=1.0, hover_reply_all=False, highlight_to=False, sent=False, title="Outlook – Martin Reed"):
+    frame(cr, title)
     x, y, w = 190, Y0 + 10, 860
     rrect(cr, x, y, w, Y1 - Y0 - 20, 12); cr.set_source_rgb(1, 1, 1); cr.fill()
     # Toolbar
