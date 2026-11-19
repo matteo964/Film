@@ -308,7 +308,7 @@ SHOTS = {
     "s_P": st("store_low", [("char", "P", 540, Y1, 1.2, -1, dict(look=PAM_CASUAL))], crowd=False),
     "sold_GP": st("store_sold", [("char", "G", 300, Y2, S2, 1, dict(look=GARY_CASUAL)), ("char", "P", 760, Y2, S2, -1, dict(look=PAM_CASUAL))], crowd=False),
     "sold_C": st("store_sold", [("char", "C", 880, Y1, 1.2, -1)], crowd=False),
-    "sold_G": st("store_sold", [("char", "G", 540, Y1, 1.2, 1, dict(look=GARY_CASUAL))], crowd=False),
+    "sold_G": st("store_sold", [("char", "G", 860, Y1, 1.2, -1, dict(look=GARY_CASUAL))], crowd=False),
     "email_store": dict(bg="dark", overlays=[lambda cr, t: ceo_email(cr, t)], layers=[]),
     "cold": dict(bg="dark", overlays=[lobby(["jake", "gary"], joined="gary")], layers=[]),
     "night": dict(bg="office", layers=[("char", "G", 540, Y1, S1, 1), ("fn", B.boss_desk)], front=[stamp("THE DAY BEFORE")]),
