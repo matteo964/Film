@@ -10,7 +10,7 @@ from backgrounds import rgb, _text, fill_stroke
 from stickman import Look, rrect, stroke_black, draw_figure, POSES
 
 GAP = 0.15
-HOOK_BASE = ["POV: You call in sick for GTA 6...", "and your boss joins your online lobby"]
+HOOK_BASE = ["POV: You call in sick for GTA 6...", "and your boss is in line right behind you"]
 CAPTIONS = True
 CAPTION_STYLE = "highlight"
 
@@ -28,7 +28,17 @@ MIA = Look(shirt=(0.95, 0.70, 0.30), skin=(0.70, 0.52, 0.40), iris=(0.22, 0.14, 
 PAMELA = Look(shirt=(0.40, 0.15, 0.40), skin=(0.48, 0.33, 0.24), iris=(0.22, 0.14, 0.08), hair="updo", hair_color=(0.08, 0.06, 0.06),
               outfit="hoodie", shoes=True, lashes=True, headset=True)
 
+CLERK = Look(shirt=(0.15, 0.15, 0.18), skin=(0.66, 0.48, 0.35), iris=(0.2, 0.12, 0.08), hair="spiky", hair_color=(0.08, 0.06, 0.06),
+             outfit="hoodie", shoes=True, cap=True)
+GARY_CASUAL = Look(shirt=(0.85, 0.30, 0.55), skin=SKIN, iris=(0.35, 0.25, 0.15), hair="sidepart", hair_color=(0.55, 0.55, 0.58),
+                   moustache=True, outfit="hoodie", shoes=True, glasses=True)
+JAKE_CASUAL = Look(shirt=(0.20, 0.20, 0.25), skin=SKIN, iris=(0.30, 0.55, 0.30), hair="curly", hair_color=(0.45, 0.28, 0.15),
+                   outfit="hoodie", shoes=True)
+PAM_CASUAL = Look(shirt=(0.40, 0.15, 0.40), skin=(0.48, 0.33, 0.24), iris=(0.22, 0.14, 0.08), hair="updo", hair_color=(0.08, 0.06, 0.06),
+                  outfit="hoodie", shoes=True, lashes=True)
+
 CHARS = {
+    "C": dict(voice="en-US-AndrewNeural", el_voice="IKne3meq5aSn9XLyUdCD", look=CLERK),           # Charlie
     "J": dict(voice="en-US-AndrewNeural", el_voice="TX3LPaxmHKxFdv7VOQHJ", look=JAKE),            # Liam
     "G": dict(voice="en-US-AndrewMultilingualNeural", el_voice="cjVigY5qzO86Huf0OWal", look=GARY),  # Eric
     "M": dict(voice="en-US-AvaNeural", el_voice="cgSgspJ2msm6clMCkdW9", look=MIA),                # Jessica
@@ -192,11 +202,63 @@ def ceo_email(cr, t):
     _text(cr, "Forwarded by Gary: NO", 540, 1412, 36, (1, 1, 1))
 
 
+# ------------------------------------------------------------------ Game-Store
+def game_box(cr, x, y, s=1.0, art=True):
+    cr.save(); cr.translate(x, y); cr.scale(s, s)
+    rrect(cr, -50, -70, 100, 140, 6); fill_stroke(cr, rgb("#1A0A2E"), 3)
+    if art:
+        neon_city(cr, -44, -64, 88, 128)
+    cr.restore()
+
+
+def store(mode="full"):
+    def make():
+        s_ = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1080, 1920)
+        cr = cairo.Context(s_)
+        B.room(cr, rgb("#2B2140"), rgb("#4A4458"), tiles="tile", ceiling=(0.16, 0.14, 0.22))
+        # Banner
+        rrect(cr, 150, 440, 780, 110, 14)
+        g = cairo.LinearGradient(150, 0, 930, 0); g.add_color_stop_rgb(0, *rgb("#FF4FD8")); g.add_color_stop_rgb(1, *rgb("#29E7FF"))
+        cr.set_source(g); cr.fill()
+        _text(cr, "GTA 6 · LAUNCH DAY", 540, 515, 56, (1, 1, 1))
+        # Regale mit Spielen
+        for r in range(3):
+            cr.rectangle(60, 760 + r * 170, 960, 14); cr.set_source_rgb(*rgb("#8C96A3")); cr.fill()
+            for k in range(9):
+                filled = mode == "full" or (mode == "low" and k < 2 and r == 0)
+                if filled:
+                    game_box(cr, 120 + k * 105, 690 + r * 170, 0.8)
+        if mode == "sold":
+            rrect(cr, 300, 690, 480, 120, 12); cr.set_source_rgb(*rgb("#E23B3B")); cr.fill()
+            _text(cr, "SOLD OUT", 540, 770, 70, (1, 1, 1))
+        # Theke
+        rrect(cr, 520, 1250, 560, 40, 8); fill_stroke(cr, rgb("#3A3F48"), 5)
+        cr.rectangle(540, 1290, 540, 270); fill_stroke(cr, rgb("#2E3440"), 5)
+        rrect(cr, 900, 1170, 120, 80, 8); fill_stroke(cr, rgb("#15181F"), 4)
+        gl = cairo.RadialGradient(540, 500, 20, 540, 500, 700)
+        gl.add_color_stop_rgba(0, 1, 0.3, 0.8, 0.18); gl.add_color_stop_rgba(1, 1, 0.3, 0.8, 0)
+        cr.set_source(gl); cr.paint()
+        s_.flush()
+        return s_
+    return make
+
+
+def queue_crowd(cr):
+    t = bgm.CLOCK["t"]
+    import anim
+    for k in range(4):
+        lk = Look(shirt=[(0.4, 0.7, 0.9), (0.9, 0.5, 0.3), (0.5, 0.8, 0.5), (0.8, 0.4, 0.7)][k], skin=SKIN if k % 2 else (0.70, 0.52, 0.40),
+                  iris=(0.3, 0.3, 0.3), hair=["long", "buzz", "spiky", "bob"][k], hair_color=[(0.2, 0.1, 0.05), (0.1, 0.1, 0.1), (0.9, 0.8, 0.5), (0.6, 0.3, 0.1)][k],
+                  outfit="hoodie", shoes=True)
+        anim.actor(cr, f"q{k}", lk, 20 + k * 95, 1620, 0.5, 1, pose=("phone", "cross", "idle", "hips")[k], emotion="neutral", t=t,
+                   prop="phone" if k == 0 else None)
+
+
 def stamp(s_):
     return lambda cr, t: MU.stamp(cr, s_)
 
 
-BG = {"office": B.boss_office, "open": B.open_office, "jroom": jake_room, "groom": gary_room, "dark": None}
+BG = {"store": store("full"), "store_low": store("low"), "store_sold": store("sold"), "office": B.boss_office, "open": B.open_office, "jroom": jake_room, "groom": gary_room, "dark": None}
 
 
 def _dark():
@@ -224,7 +286,30 @@ def gary_couch():
                                     ("fn", lambda cr: couch_front(cr, 360, "#4E2240"))])
 
 
+def st(bg, layers, crowd=True):
+    return dict(bg=bg, layers=([("fn", queue_crowd)] if crowd else []) + layers)
+
+
+def boxprop(x, y, s=1.0):
+    return ("fn", lambda cr: game_box(cr, x, y, s))
+
+
 SHOTS = {
+    "s_cold": st("store_low", [("char", "C", 860, Y2, 0.95, -1), ("char", "J", 560, Y2, 0.95, 1, dict(look=JAKE_CASUAL)),
+                                ("char", "G", 240, Y2, 0.95, 1, dict(look=GARY_CASUAL))], crowd=False),
+    "s_J": st("store_low", [("char", "C", 900, Y2, 0.95, -1), ("char", "J", 540, Y1, 1.2, 1, dict(look=JAKE_CASUAL))]),
+    "s_G": st("store_low", [("char", "G", 540, Y1, 1.2, 1, dict(look=GARY_CASUAL))]),
+    "s_JG": st("store_low", [("char", "G", 260, Y2, 0.95, 1, dict(look=GARY_CASUAL)), ("char", "J", 560, Y2, 0.95, -1, dict(look=JAKE_CASUAL)),
+                              ("char", "C", 880, Y2, 0.95, -1)], crowd=False),
+    "s_C": st("store_low", [("char", "C", 880, Y1, 1.2, -1), boxprop(700, 1210, 1.3)], crowd=False),
+    "s_Jbox": st("store", [("char", "J", 540, Y1, 1.2, 1, dict(look=JAKE_CASUAL)), boxprop(720, 1080, 1.4)], crowd=False),
+    "s_JGP": st("store_low", [("char", "G", 200, Y2, 0.9, 1, dict(look=GARY_CASUAL)), ("char", "J", 470, Y2, 0.9, 1, dict(look=JAKE_CASUAL)),
+                               ("char", "P", 760, Y2, 0.9, -1, dict(look=PAM_CASUAL))], crowd=False),
+    "s_P": st("store_low", [("char", "P", 540, Y1, 1.2, -1, dict(look=PAM_CASUAL))], crowd=False),
+    "sold_GP": st("store_sold", [("char", "G", 300, Y2, S2, 1, dict(look=GARY_CASUAL)), ("char", "P", 760, Y2, S2, -1, dict(look=PAM_CASUAL))], crowd=False),
+    "sold_C": st("store_sold", [("char", "C", 880, Y1, 1.2, -1)], crowd=False),
+    "sold_G": st("store_sold", [("char", "G", 540, Y1, 1.2, 1, dict(look=GARY_CASUAL))], crowd=False),
+    "email_store": dict(bg="dark", overlays=[lambda cr, t: ceo_email(cr, t)], layers=[]),
     "cold": dict(bg="dark", overlays=[lobby(["jake", "gary"], joined="gary")], layers=[]),
     "night": dict(bg="office", layers=[("char", "G", 540, Y1, S1, 1), ("fn", B.boss_desk)], front=[stamp("THE DAY BEFORE")]),
     "office_G": dict(bg="office", layers=[("char", "G", 540, 1700, 1.3, 1, dict(hide_legs=True)), ("fn", B.boss_desk)]),
